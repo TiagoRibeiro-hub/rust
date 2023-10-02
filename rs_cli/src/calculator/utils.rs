@@ -27,12 +27,31 @@ fn inside_parentheses_manipulation(
     rpn: &mut Vec<Token>,
 ) {
     if parentheses_open_count > parentheses_closed_count {
+        if stack[stack.len() - 1] == Operator::ParenthesesClose
+            && operator != Operator::ParenthesesClose
+        {
+            let mut to_closed = parentheses_closed_count.clone();
+
+            while let Some(op) = stack.pop() {
+                if op == Operator::ParenthesesOpen {
+                    *parentheses_open_count -= 1;
+                    to_closed -= 1;
+                    if *parentheses_open_count == 0 || to_closed == 0 {
+                        break;
+                    }
+                } else if op == Operator::ParenthesesClose {
+                    *parentheses_closed_count -= 1
+                } else {
+                    rpn.push(Token::Operator(op));
+                }
+            }
+        }
         stack.push(operator);
     } else {
         // * all parentheses are closed pop everything to rpn until find the last close parenthese
         while let Some(op) = stack.pop() {
             if op == Operator::ParenthesesOpen {
-                *parentheses_open_count -= *parentheses_open_count;
+                *parentheses_open_count -= 1;
                 if *parentheses_open_count == 0 {
                     *parentheses_closed_count = 0;
                     break;
@@ -64,7 +83,7 @@ pub fn stack_manipulation(
     } else if stack.is_empty()
         || operator == Operator::ParenthesesOpen
         || operator == Operator::Expoent
-        || last_is_add_or_sub(&stack) && operator == Operator::Mul || operator == Operator::Div
+        || (last_is_add_or_sub(&stack) && operator == Operator::Mul || operator == Operator::Div)
     {
         stack.push(operator)
     } else {
@@ -79,10 +98,13 @@ pub fn stack_manipulation(
     }
 }
 
+#[allow(unused_imports)]
+use colored::Colorize;
 #[test]
 fn calculator_rpn() {
-    println!("Start rpn_result_1");
-    // ! "6*3-(4-5)+2" -> [Operand(6), Operand(3), Operator(Mul), Operand(4), Operand(5), Operator(Sub), Operator(Sub), Operand(2), Operator(Add)] -> 63*45--2+ = 21
+    // * https://www.omnicalculator.com/math/polish-notation
+    println!("{}", "Start rpn_result_1".blue());
+    // * "6*3-(4-5)+2" -> [Operand(6), Operand(3), Operator(Mul), Operand(4), Operand(5), Operator(Sub), Operator(Sub), Operand(2), Operator(Add)] -> 63*45--2+ = 21
     let rpn_result_1 = Calculator::rpn("6*3-(4-5)+2");
     match rpn_result_1 {
         Ok(rpn) => {
@@ -103,10 +125,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_1");
-    
-    println!("Start rpn_result_2");
-    // ! "(1+2)*(3+4)" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operand(4), Operator(Add), Operator(Mul)]-> 1 2 + 3 4 + * = 21
+    println!("{}", "End rpn_result_1".green());
+
+    println!("{}", "Start rpn_result_2".blue());
+    // * "(1+2)*(3+4)" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operand(4), Operator(Add), Operator(Mul)]-> 1 2 + 3 4 + * = 21
     let rpn_result_2 = Calculator::rpn("(1+2)*(3+4)");
     match rpn_result_2 {
         Ok(rpn) => {
@@ -125,10 +147,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_2");
+    println!("{}", "End rpn_result_2".green());
 
-    println!("Start rpn_result_3");
-    // ! "1+2*3+4" -> [Operand(1), Operand(2), Operand(3), Operator(Mul), Operator(Add), Operand(4), Operator(Add)] -> 1 2 3 * + 4 + = 11
+    println!("{}", "Start rpn_result_3".blue());
+    // * "1+2*3+4" -> [Operand(1), Operand(2), Operand(3), Operator(Mul), Operator(Add), Operand(4), Operator(Add)] -> 1 2 3 * + 4 + = 11
     let rpn_result_3 = Calculator::rpn("1+2*3+4");
     match rpn_result_3 {
         Ok(rpn) => {
@@ -147,10 +169,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_3");
+    println!("{}", "End rpn_result_3".green());
 
-    println!("Start rpn_result_4");
-    // ! "1+2*(3+4)" -> [Operand(1), Operand(2), Operand(3), Operand(4), Operator(Add), Operator(Mul), Operator(Add)] -> 1234+*+ = 15
+    println!("{}", "Start rpn_result_4".blue());
+    // * "1+2*(3+4)" -> [Operand(1), Operand(2), Operand(3), Operand(4), Operator(Add), Operator(Mul), Operator(Add)] -> 1234+*+ = 15
     let rpn_result_4 = Calculator::rpn("1+2*(3+4)");
     match rpn_result_4 {
         Ok(rpn) => {
@@ -169,10 +191,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_4");
+    println!("{}", "End rpn_result_4".green());
 
-    println!("Start rpn_result_5");
-    // ! "(1+2)*3+4" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operator(Mul), Operand(4), Operator(Add)] -> 12+3*4+ = 13
+    println!("{}", "Start rpn_result_5".blue());
+    // * "(1+2)*3+4" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operator(Mul), Operand(4), Operator(Add)] -> 12+3*4+ = 13
     let rpn_result_5 = Calculator::rpn("(1+2)*3+4");
     match rpn_result_5 {
         Ok(rpn) => {
@@ -191,10 +213,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_5");
+    println!("{}", "End rpn_result_5".green());
 
-    println!("Start rpn_result_6");
-    // ! "(2/4)*(5-6)" -> [Operand(2), Operand(4), Operator(Div), Operand(5), Operand(6), Operator(Sub), Operator(Mul)] -> 24/56-* = -0.5
+    println!("{}", "Start rpn_result_6".blue());
+    // * "(2/4)*(5-6)" -> [Operand(2), Operand(4), Operator(Div), Operand(5), Operand(6), Operator(Sub), Operator(Mul)] -> 24/56-* = -0.5
     let rpn_result_6 = Calculator::rpn("(2/4)*(5-6)");
     match rpn_result_6 {
         Ok(rpn) => {
@@ -213,10 +235,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_6");
+    println!("{}", "End rpn_result_6".green());
 
-    println!("Start rpn_result_7");
-    // ! "3/(5+8*9)" -> [Operand(3), Operand(5), Operand(8), Operand(9), Operator(Mul), Operator(Add), Operator(Div)] -> 3589*+/ = 7
+    println!("{}", "Start rpn_result_7".blue());
+    // * "3/(5+8*9)" -> [Operand(3), Operand(5), Operand(8), Operand(9), Operator(Mul), Operator(Add), Operator(Div)] -> 3589*+/ = 7
     let rpn_result_7 = Calculator::rpn("3/(5+8*9)");
     match rpn_result_7 {
         Ok(rpn) => {
@@ -235,37 +257,103 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-    println!("End rpn_result_7");
+    println!("{}", "End rpn_result_7".green());
 
-    println!("Start rpn_result_8");
-    // ! "3*5^2/5-8*9^(2-4)" 
-    // ! -> [Operand(3), Operand(5), Operand(2), Operand(5), Operator(Div), Operator(Expoent), Operator(Mul), Operand(8), Operand(9), Operand(2), Operand(4), Operator(Sub), Operator(Expoent), Operator(Mul), Operator(Sub)]
-    // ! -> 3 5 2 ^ * 5 / 8 9 2 4 - ^ * - => 
+    println!("{}", "Start rpn_result_8".blue());
+    // * "3*5^2/5-8*9^(2-4)"
+    // * -> [Operand(3), Operand(5), Operand(2), Operand(5), Operator(Div), Operator(Expoent), Operator(Mul), Operand(8), Operand(9), Operand(2), Operand(4), Operator(Sub), Operator(Expoent), Operator(Mul), Operator(Sub)]
+    // * -> 3 5 2 ^ * 5 / 8 9 2 4 - ^ * - => ??
     let rpn_result_8 = Calculator::rpn("3*5^2/5-8*9^(2-4)");
     match rpn_result_8 {
         Ok(rpn) => {
             assert_eq!(
                 rpn,
                 [
-                    Token::Operand(3), 
-                    Token::Operand(5), 
-                    Token::Operand(2), 
-                    Token::Operand(5), 
-                    Token::Operator(Operator::Div), 
-                    Token::Operator(Operator::Expoent), 
-                    Token::Operator(Operator::Mul), 
-                    Token::Operand(8), 
-                    Token::Operand(9), 
-                    Token::Operand(2), 
-                    Token::Operand(4), 
-                    Token::Operator(Operator::Sub), 
-                    Token::Operator(Operator::Expoent), 
-                    Token::Operator(Operator::Mul), 
+                    Token::Operand(3),
+                    Token::Operand(5),
+                    Token::Operand(2),
+                    Token::Operand(5),
+                    Token::Operator(Operator::Div),
+                    Token::Operator(Operator::Expoent),
+                    Token::Operator(Operator::Mul),
+                    Token::Operand(8),
+                    Token::Operand(9),
+                    Token::Operand(2),
+                    Token::Operand(4),
+                    Token::Operator(Operator::Sub),
+                    Token::Operator(Operator::Expoent),
+                    Token::Operator(Operator::Mul),
                     Token::Operator(Operator::Sub)
                 ]
             )
         }
         Err(_) => {}
     };
-    println!("End rpn_result_8");
+    println!("{}", "End rpn_result_8".green());
+
+    println!("{}", "Start rpn_result_9".blue());
+    // * "((15/(7-(1+1)))*3)-(2+(1+1))"
+    // * -> [Operand(15), Operand(7), Operand(1), Operand(1), Operator(Add), Operator(Sub), Operator(Div), Operand(3), Operator(Mul), Operand(2), Operand(1), Operand(1), Operator(Add), Operator(Add), Operator(Sub)]
+    // * -> 15 7 1 1 + − / 3 * 2 1 1 + + − => 5
+    let rpn_result_8 = Calculator::rpn("((15/(7-(1+1)))*3)-(2+(1+1))");
+    match rpn_result_8 {
+        Ok(rpn) => {
+            assert_eq!(
+                rpn,
+                [
+                    Token::Operand(15),
+                    Token::Operand(7),
+                    Token::Operand(1),
+                    Token::Operand(1),
+                    Token::Operator(Operator::Add),
+                    Token::Operator(Operator::Sub),
+                    Token::Operator(Operator::Div),
+                    Token::Operand(3),
+                    Token::Operator(Operator::Mul),
+                    Token::Operand(2),
+                    Token::Operand(1),
+                    Token::Operand(1),
+                    Token::Operator(Operator::Add),
+                    Token::Operator(Operator::Add),
+                    Token::Operator(Operator::Sub)
+                ]
+            )
+        }
+        Err(_) => {}
+    };
+    println!("{}", "End rpn_result_9".green());
+
+    println!("{}", "Start rpn_result_10".blue());
+    // * "((15/(7-(1+1)))*3)-((2+(1+1))+5)"
+    // * -> [Operand(15), Operand(7), Operand(1), Operand(1), Operator(Add), Operator(Sub), Operator(Div), Operand(3), Operator(Mul), Operand(2), Operand(1), Operand(1), Operator(Add), Operator(Add), Operand(5), Operator(Add), Operator(Sub)]
+    // * -> 15 7 1 1 + - / 3 * 2 1 1 + + 5 + - => 0
+    let rpn_result_8 = Calculator::rpn("((15/(7-(1+1)))*3)-((2+(1+1))+5)");
+    match rpn_result_8 {
+        Ok(rpn) => {
+            assert_eq!(
+                rpn,
+                [
+                    Token::Operand(15),
+                    Token::Operand(7),
+                    Token::Operand(1),
+                    Token::Operand(1),
+                    Token::Operator(Operator::Add),
+                    Token::Operator(Operator::Sub),
+                    Token::Operator(Operator::Div),
+                    Token::Operand(3),
+                    Token::Operator(Operator::Mul),
+                    Token::Operand(2),
+                    Token::Operand(1),
+                    Token::Operand(1),
+                    Token::Operator(Operator::Add),
+                    Token::Operator(Operator::Add),
+                    Token::Operand(5),
+                    Token::Operator(Operator::Add),
+                    Token::Operator(Operator::Sub)
+                ]
+            )
+        }
+        Err(_) => {}
+    };
+    println!("{}", "End rpn_result_10".green());
 }

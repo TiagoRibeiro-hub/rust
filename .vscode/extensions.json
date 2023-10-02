@@ -4,6 +4,7 @@
         "tamasfe.even-better-toml",
         "serayuzgur.crates",
         "vadimcn.vscode-lldb",
-        "aaron-bond.better-comments"
+        "aaron-bond.better-comments",
+        "eamodio.gitlens"
     ]
 }

@@ -32,6 +32,7 @@ impl Calculator {
         let mut char_after_operator = false;
         let mut parentheses_open_count: i32 = 0;
         let mut parentheses_closed_count: i32 = 0;
+
         for c in expr.chars() {
             match c {
                 '0'..='9' => match rpn.last_mut() {
@@ -135,5 +136,10 @@ impl Calculator {
         }
 
         Ok(rpn)
+    }
+
+    #[allow(unused_variables, dead_code)]
+    pub fn evaluate(expr: Vec<Token>) -> Result<f64, Error> {
+        Ok(f64::MIN)
     }
 }

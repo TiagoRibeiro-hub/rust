@@ -3,10 +3,16 @@ mod calculator;
 use calculator::Calculator;
 
 fn main() {
-    let rpn_result = Calculator::rpn("((15/(7-(1+1)))*3)-((2+(1+1))+5)");
+    let rpn_result = Calculator::rpn("3/(5+8*9)");
 
     match rpn_result {
-        Ok(rpn) => println!("rpn: {rpn:?}"), 
+        Ok(rpn) => {
+            let result = Calculator::evaluate(rpn);
+            match result {
+                Ok(final_result) => println!("error: {final_result:?}"),
+                Err(e) => println!("error: {e:?}"),
+            }
+        }, 
         Err(e) => println!("error: {e:?}"),
     }
 }

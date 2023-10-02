@@ -138,8 +138,13 @@ impl Calculator {
         Ok(rpn)
     }
 
-    #[allow(unused_variables, dead_code)]
-    pub fn evaluate(expr: Vec<Token>) -> Result<f64, Error> {
-        Ok(f64::MIN)
+    pub fn evaluate(rpn: Vec<Token>) -> Result<f64, Error> {
+        let mut rpn = rpn.clone();
+        rpn.reverse();
+        let result = utils::evaluate(rpn);
+        Ok(result)
     }
 }
+
+
+

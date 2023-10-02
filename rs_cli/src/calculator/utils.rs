@@ -1,125 +1,81 @@
-// TODO expoent
-#[derive(Debug, PartialEq, Clone)]
-pub enum Operator {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    ParenthesesOpen,
-    ParenthesesClose,
+use crate::calculator::*;
+
+fn last_is_add_or_sub(stack: &Vec<Operator>) -> bool {
+    stack[stack.len() - 1] == Operator::Add || stack[stack.len() - 1] == Operator::Sub
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub enum Token {
-    Operand(u32),
-    Operator(Operator),
+fn is_less_or_equal_than(operator: &Operator, operator_from_stack: &Operator) -> bool {
+    // ! PEMDAS => Parentheses -> Expoent -> Mul or Div -> Add or Sub
+    // * if true pop else push
+    let mut result = false;
+    if *operator == Operator::Mul || *operator == Operator::Div {
+        //*operator_from_stack == Operator::Mul || *operator_from_stack == Operator::Div || *operator_from_stack == Operator::Expoent;
+        result = *operator_from_stack != Operator::Add && *operator_from_stack != Operator::Sub
+    } else if *operator == Operator::Add || *operator == Operator::Sub {
+        //*operator_from_stack == Operator::Mul || *operator_from_stack == Operator::Div || *operator_from_stack == Operator::Expoent || *operator_from_stack == Operator::Add || *operator_from_stack == Operator::Sub;
+        result = true;
+    }
+
+    result
 }
 
-#[derive(Debug)]
-pub enum Error {
-    BadToken(char),
-}
-
-pub struct Calculator {}
-
-impl Calculator {
-    pub fn rpn(expr: &str) -> Result<Vec<Token>, Error> {
-        let mut rpn: Vec<Token> = Vec::new();
-        let mut stack: Vec<Operator> = Vec::new();
-
-        let mut char_after_operator = false;
-        for c in expr.chars() {
-            match c {
-                '0'..='9' => match rpn.last_mut() {
-                    Some(Token::Operand(n)) => {
-                        if char_after_operator == true {
-                            let digit = c as u32 - 48; // ascii
-                            rpn.push(Token::Operand(digit));
-                            char_after_operator = false;
-                        } else {
-                            *n = *n * 10 + (c as u32 - 48); // add c to n, if n is 2 and c 5 will become 25
-                        }
-                    }
-                    _ => {
-                        let digit = c as u32 - 48; // ascii
-                        rpn.push(Token::Operand(digit))
-                    }
-                },
-                '(' => {
-                    stack_manipulation(&mut rpn, &mut stack, Operator::ParenthesesOpen);
-                    char_after_operator = true;
+fn inside_parentheses_manipulation(
+    operator: Operator,
+    parentheses_open_count: &mut i32,
+    parentheses_closed_count: &mut i32,
+    stack: &mut Vec<Operator>,
+    rpn: &mut Vec<Token>,
+) {
+    if parentheses_open_count > parentheses_closed_count {
+        stack.push(operator);
+    } else {
+        // * all parentheses are closed pop everything to rpn until find the last close parenthese
+        while let Some(op) = stack.pop() {
+            if op == Operator::ParenthesesOpen {
+                *parentheses_open_count -= *parentheses_open_count;
+                if *parentheses_open_count == 0 {
+                    *parentheses_closed_count = 0;
+                    break;
                 }
-                ')' => {
-                    stack_manipulation(&mut rpn, &mut stack, Operator::ParenthesesClose);
-                    char_after_operator = true;
-                }
-                '+' => {
-                    stack_manipulation(&mut rpn, &mut stack, Operator::Add);
-                    char_after_operator = true;
-                }
-                '-' => {
-                    stack_manipulation(&mut rpn, &mut stack, Operator::Sub);
-                    char_after_operator = true;
-                }
-                '*' => {
-                    stack_manipulation(&mut rpn, &mut stack, Operator::Mul);
-                    char_after_operator = true;
-                }
-                '/' => {
-                    stack_manipulation(&mut rpn, &mut stack, Operator::Div);
-                    char_after_operator = true;
-                }
-                ' ' => {}
-                '\n' => {}
-                _ => return Err(Error::BadToken(c)),
+            } else if op == Operator::ParenthesesClose {
+                continue;
+            } else {
+                rpn.push(Token::Operator(op));
             }
         }
-
-        if stack.len() > 0 {
-            rpn_push(&mut stack, &mut rpn);
-        }
-
-        Ok(rpn)
     }
 }
 
-fn stack_manipulation(rpn: &mut Vec<Token>, stack: &mut Vec<Operator>, operator: Operator) {
-    if stack.is_empty()
+pub fn stack_manipulation(
+    rpn: &mut Vec<Token>,
+    stack: &mut Vec<Operator>,
+    operator: Operator,
+    parentheses_open_count: &mut i32,
+    parentheses_closed_count: &mut i32,
+) {
+    if stack.contains(&Operator::ParenthesesOpen) {
+        inside_parentheses_manipulation(
+            operator,
+            parentheses_open_count,
+            parentheses_closed_count,
+            stack,
+            rpn,
+        );
+    } else if stack.is_empty()
         || operator == Operator::ParenthesesOpen
-        || stack[stack.len() - 1] == Operator::ParenthesesOpen
+        || operator == Operator::Expoent
+        || last_is_add_or_sub(&stack) && operator == Operator::Mul || operator == Operator::Div
     {
         stack.push(operator)
     } else {
-        if operator == Operator::ParenthesesClose {
-            rpn_push(stack, rpn);
-        } else {
-            if stack[stack.len() - 1] == Operator::Add || stack[stack.len() - 1] == Operator::Sub {
-                if operator == Operator::Add || operator == Operator::Sub {
-                    rpn_push(stack, rpn);
-                    stack.push(operator);
-                } else if operator == Operator::Mul || operator == Operator::Div {
-                    stack.push(operator);
-                }
-            } else if stack[stack.len() - 1] == Operator::Mul
-                || stack[stack.len() - 1] == Operator::Div
-            {
-                match stack.pop() {
-                    Some(op) => rpn.push(Token::Operator(op)),
-                    None => println!("error: operators_set_up"), // TODO error handling
-                }
-                stack.push(operator);
+        while let Some(op) = stack.pop() {
+            if is_less_or_equal_than(&operator, &op) {
+                rpn.push(Token::Operator(op));
+            } else {
+                break;
             }
         }
-    }
-}
-
-fn rpn_push(stack: &mut Vec<Operator>, rpn: &mut Vec<Token>) {
-    while let Some(op) = stack.pop() {
-        if op == Operator::ParenthesesOpen {
-            break;
-        } else {
-            rpn.push(Token::Operator(op));
-        }
+        stack.push(operator);
     }
 }
 
@@ -147,9 +103,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
-
+    println!("End rpn_result_1");
+    
     println!("Start rpn_result_2");
-    // ! "(1+2)*(3+4)" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operand(4), Operator(Add), Operator(Mul)]-> 12+34+* = 21
+    // ! "(1+2)*(3+4)" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operand(4), Operator(Add), Operator(Mul)]-> 1 2 + 3 4 + * = 21
     let rpn_result_2 = Calculator::rpn("(1+2)*(3+4)");
     match rpn_result_2 {
         Ok(rpn) => {
@@ -168,9 +125,10 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
+    println!("End rpn_result_2");
 
     println!("Start rpn_result_3");
-    // ! "1+2*3+4" -> [Operand(1), Operand(2), Operand(3), Operator(Mul), Operand(4), Operator(Add), Operator(Add)] -> 123*4++ = 11
+    // ! "1+2*3+4" -> [Operand(1), Operand(2), Operand(3), Operator(Mul), Operator(Add), Operand(4), Operator(Add)] -> 1 2 3 * + 4 + = 11
     let rpn_result_3 = Calculator::rpn("1+2*3+4");
     match rpn_result_3 {
         Ok(rpn) => {
@@ -181,14 +139,15 @@ fn calculator_rpn() {
                     Token::Operand(2),
                     Token::Operand(3),
                     Token::Operator(Operator::Mul),
-                    Token::Operand(4),
                     Token::Operator(Operator::Add),
+                    Token::Operand(4),
                     Token::Operator(Operator::Add)
                 ]
             )
         }
         Err(_) => {}
     };
+    println!("End rpn_result_3");
 
     println!("Start rpn_result_4");
     // ! "1+2*(3+4)" -> [Operand(1), Operand(2), Operand(3), Operand(4), Operator(Add), Operator(Mul), Operator(Add)] -> 1234+*+ = 15
@@ -210,6 +169,7 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
+    println!("End rpn_result_4");
 
     println!("Start rpn_result_5");
     // ! "(1+2)*3+4" -> [Operand(1), Operand(2), Operator(Add), Operand(3), Operator(Mul), Operand(4), Operator(Add)] -> 12+3*4+ = 13
@@ -231,6 +191,7 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
+    println!("End rpn_result_5");
 
     println!("Start rpn_result_6");
     // ! "(2/4)*(5-6)" -> [Operand(2), Operand(4), Operator(Div), Operand(5), Operand(6), Operator(Sub), Operator(Mul)] -> 24/56-* = -0.5
@@ -252,6 +213,7 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
+    println!("End rpn_result_6");
 
     println!("Start rpn_result_7");
     // ! "3/(5+8*9)" -> [Operand(3), Operand(5), Operand(8), Operand(9), Operator(Mul), Operator(Add), Operator(Div)] -> 3589*+/ = 7
@@ -273,4 +235,37 @@ fn calculator_rpn() {
         }
         Err(_) => {}
     };
+    println!("End rpn_result_7");
+
+    println!("Start rpn_result_8");
+    // ! "3*5^2/5-8*9^(2-4)" 
+    // ! -> [Operand(3), Operand(5), Operand(2), Operand(5), Operator(Div), Operator(Expoent), Operator(Mul), Operand(8), Operand(9), Operand(2), Operand(4), Operator(Sub), Operator(Expoent), Operator(Mul), Operator(Sub)]
+    // ! -> 3 5 2 ^ * 5 / 8 9 2 4 - ^ * - => 
+    let rpn_result_8 = Calculator::rpn("3*5^2/5-8*9^(2-4)");
+    match rpn_result_8 {
+        Ok(rpn) => {
+            assert_eq!(
+                rpn,
+                [
+                    Token::Operand(3), 
+                    Token::Operand(5), 
+                    Token::Operand(2), 
+                    Token::Operand(5), 
+                    Token::Operator(Operator::Div), 
+                    Token::Operator(Operator::Expoent), 
+                    Token::Operator(Operator::Mul), 
+                    Token::Operand(8), 
+                    Token::Operand(9), 
+                    Token::Operand(2), 
+                    Token::Operand(4), 
+                    Token::Operator(Operator::Sub), 
+                    Token::Operator(Operator::Expoent), 
+                    Token::Operator(Operator::Mul), 
+                    Token::Operator(Operator::Sub)
+                ]
+            )
+        }
+        Err(_) => {}
+    };
+    println!("End rpn_result_8");
 }

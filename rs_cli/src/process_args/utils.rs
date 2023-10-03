@@ -1,5 +1,3 @@
-use serde_json::json;
-
 use crate::{calculator::Calculator, response::Response};
 
 pub fn calculator(args: Vec<String>, response: &mut Response) {
@@ -17,19 +15,15 @@ pub fn calculator(args: Vec<String>, response: &mut Response) {
                     if args.len() == 4 {
                         let show_rpn: &str = args[3].as_ref();
                         if show_rpn == "--s" {
-                            let obj = json!({
-                                "Expression": format!("{}", expr),
-                                "RPN": format!("{}", "rpn"), // TODO implements display for rpn
-                                "Result": format!("{}", final_result)
-                            });
-                            response.message = serde_json::to_string_pretty(&obj).unwrap();
+                            response.message = format!(
+                                "Expression: {},\nRPN:{},\nResult: {}",
+                                expr, "rpn", final_result
+                            ); // TODO implements display for rpn
                             response.succeed = true;
-                        }
-                        else {
-                            response.message =
-                            format!("'{}' is not a known parameter", show_rpn);
+                        } else {
+                            response.message = format!("'{}' is not a known parameter", show_rpn);
                         };
-                    }else {
+                    } else {
                         response.message =
                             format!("The result for '{}' is: {}", expr, final_result);
                         response.succeed = true;

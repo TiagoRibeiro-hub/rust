@@ -1,4 +1,5 @@
 mod utils;
+const OVERFLOW_NUMERIC_VALUE: &str = "The numeric value that is outside of the range";
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Operator {
@@ -20,6 +21,7 @@ pub enum Token {
 #[derive(Debug)]
 pub enum Error {
     BadToken(char),
+    Overflow(String)
 }
 
 pub struct Calculator {}
@@ -38,17 +40,25 @@ impl Calculator {
                 '0'..='9' => match rpn.last_mut() {
                     Some(Token::Operand(n)) => {
                         if char_after_operator == true {
-                            let digit = c as u32 - 48; // ascii
-                            rpn.push(Token::Operand(digit));
+                            rpn.push(Token::Operand(c as u32 - 48)); // ascii
                             char_after_operator = false;
                         } else {
-                            *n = *n * 10 + (c as u32 - 48); // add c to n, if n is 2 and c 5 will become 25
+                            let can_make_op = n.checked_mul(10); 
+                            match can_make_op {
+                                Some(digit) => {
+                                    let can_make_op = digit.checked_add(c as u32 - 48); 
+                                    match can_make_op {
+                                        Some(digit) => *n = digit, // add c to n, if n is 2 and c 5 will become 25
+                                        None => return Err(Error::Overflow(OVERFLOW_NUMERIC_VALUE.to_string())),
+                                    }
+                                }
+                                None => return Err(Error::Overflow(OVERFLOW_NUMERIC_VALUE.to_string())),
+                            }
                         }
                     }
                     _ => {
                         char_after_operator = false;
-                        let digit = c as u32 - 48; // ascii
-                        rpn.push(Token::Operand(digit))
+                        rpn.push(Token::Operand(c as u32 - 48)); // ascii
                     }
                 },
                 '(' => {

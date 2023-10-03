@@ -1,2 +1,3 @@
 ### calculator:
-- using Reverse Polish Notation
+- Calculator using Reverse Polish Notation
+- Allowed characters: + - * / ^ ( )

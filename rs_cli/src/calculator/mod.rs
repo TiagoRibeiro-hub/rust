@@ -1,4 +1,4 @@
-use crate::global::CustomError;
+use crate::error::CustomError;
 mod utils;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -33,7 +33,7 @@ impl Calculator {
             match c {
                 '0'..='9' => match rpn.last_mut() {
                     Some(Token::Operand(n)) => {
-                        if char_after_operator == true {
+                        if char_after_operator {
                             rpn.push(Token::Operand(c as u32 - 48)); // ascii
                             char_after_operator = false;
                         } else {
@@ -129,11 +129,11 @@ impl Calculator {
                 }
                 ' ' => {}
                 '\n' => {}
-                _ => return Err(CustomError::Generic(format!("BadToken {}", c))),
+                _ => return Err(CustomError::Generic(format!("Character '{}' is not allowed.", c))),
             }
         }
 
-        if stack.len() > 0 {
+        if !stack.is_empty() {
             while let Some(op) = stack.pop() {
                 rpn.push(Token::Operator(op));
             }
@@ -142,8 +142,7 @@ impl Calculator {
         Ok(rpn)
     }
 
-    pub fn evaluate(rpn: Vec<Token>) -> Result<f64, CustomError> {
-        let mut rpn = rpn.clone();
+    pub fn evaluate(mut rpn: Vec<Token>) -> Result<f64, CustomError> {
         rpn.reverse();
         let result = utils::evaluate(rpn);
         Ok(result)

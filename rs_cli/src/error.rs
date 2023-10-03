@@ -7,8 +7,3 @@ pub enum CustomError {
     IO(#[from] std::io::Error),
 }
 
-#[derive(Debug)]
-pub struct Response {
-    pub message: String,
-    pub succeed: bool,
-}

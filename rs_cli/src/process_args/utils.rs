@@ -1,16 +1,43 @@
-use crate::{calculator::Calculator, global::CustomError};
+use serde_json::json;
 
-pub fn calculator(args: Vec<String>) -> Result<String, CustomError> {
+use crate::{calculator::Calculator, response::Response};
+
+pub fn calculator(args: Vec<String>, response: &mut Response) {
+    if args.len() > 4 {
+        response.message = "Too many parameters".to_string();
+        return;
+    }
     let expr: &str = args[2].as_ref();
-    let rpn_result = Calculator::rpn(&expr);
+    let rpn_result = Calculator::rpn(expr);
     match rpn_result {
         Ok(rpn) => {
             let result = Calculator::evaluate(rpn);
             match result {
-                Ok(final_result) => return Ok(format!("The result is: {}", final_result)),
-                Err(e) => return Err(e),
+                Ok(final_result) => {
+                    if args.len() == 4 {
+                        let show_rpn: &str = args[3].as_ref();
+                        if show_rpn == "--s" {
+                            let obj = json!({
+                                "Expression": format!("{}", expr),
+                                "RPN": format!("{}", "rpn"), // TODO implements display for rpn
+                                "Result": format!("{}", final_result)
+                            });
+                            response.message = serde_json::to_string_pretty(&obj).unwrap();
+                            response.succeed = true;
+                        }
+                        else {
+                            response.message =
+                            format!("'{}' is not a known parameter", show_rpn);
+                        };
+                    }else {
+                        response.message =
+                            format!("The result for '{}' is: {}", expr, final_result);
+                        response.succeed = true;
+                    };
+                }
+                Err(e) => response.message = format!("{}", e),
             }
         }
-        Err(e) => return Err(e),
+        Err(e) => response.message = format!("{}", e),
     }
 }

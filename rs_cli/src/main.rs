@@ -1,9 +1,16 @@
 mod calculator;
 mod process_args;
-mod global;
+mod error;
+mod response;
+use colored::Colorize;
 
 fn main() {
     let result = process_args::process_args();
-    println!("{}", result.message);
+    if result.succeed {
+        println!("{}", result.message.blue());
+    }
+    else {
+        eprintln!("{}", result.message.red())
+    }
 }
 

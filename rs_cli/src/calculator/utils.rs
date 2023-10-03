@@ -30,7 +30,7 @@ fn inside_parentheses_manipulation(
         if stack[stack.len() - 1] == Operator::ParenthesesClose
             && operator != Operator::ParenthesesClose
         {
-            let mut to_closed = parentheses_closed_count.clone();
+            let mut to_closed = *parentheses_closed_count;
 
             while let Some(op) = stack.pop() {
                 if op == Operator::ParenthesesOpen {
@@ -83,7 +83,7 @@ pub fn stack_manipulation(
     } else if stack.is_empty()
         || operator == Operator::ParenthesesOpen
         || operator == Operator::Expoent
-        || (last_is_add_or_sub(&stack) && operator == Operator::Mul || operator == Operator::Div)
+        || (last_is_add_or_sub(stack) && operator == Operator::Mul || operator == Operator::Div)
     {
         stack.push(operator)
     } else {

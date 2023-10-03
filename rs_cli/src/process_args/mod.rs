@@ -1,39 +1,30 @@
-use crate::global::Response;
 use std::env::args;
+
+use crate::response::Response;
 
 mod utils;
 
 pub fn process_args() -> Response {
     let args: Vec<String> = args().collect();
     let mut response = Response { message: String::from("Something went wrong"), succeed: false };
-
-    if args.len() != 3 {
-        response.message = format!("At least 2 args");
+    
+    if args.len() < 3 {
+        response.message = "Must have at least 2 args".to_string();
         return response;
     }
 
-    let type_op = args.get(1);
-
-    match type_op {
+    match args.get(1) {
         Some(op) => {
             if op == "calc" {
-                let calc_res = utils::calculator(args);
-                match calc_res {
-                    Ok(res) => {
-                        response.message = res; 
-                        response.succeed = true;
-                    },
-                    Err(e) => {
-                        response.message = format!("{}", e);
-                    },
-                };
+                utils::calculator(args, &mut response);
             }
             else{
-                response.message = format!("There is no operation {}", op);
+                response.message = format!("There is no operation '{}'", op);
             };
         }
-        None =>  response.message = format!("There is no parameter"),
+        None =>  response.message = "No parameters allowed".to_string(),
     }
 
     response
 }
+

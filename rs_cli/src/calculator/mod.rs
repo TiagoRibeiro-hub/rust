@@ -1,5 +1,5 @@
+use crate::global::CustomError;
 mod utils;
-const OVERFLOW_NUMERIC_VALUE: &str = "The numeric value that is outside of the range";
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Operator {
@@ -18,16 +18,10 @@ pub enum Token {
     Operator(Operator),
 }
 
-#[derive(Debug)]
-pub enum Error {
-    BadToken(char),
-    Overflow(String)
-}
-
 pub struct Calculator {}
 
 impl Calculator {
-    pub fn rpn(expr: &str) -> Result<Vec<Token>, Error> {
+    pub fn rpn(expr: &str) -> Result<Vec<Token>, CustomError> {
         let mut rpn: Vec<Token> = Vec::new();
         let mut stack: Vec<Operator> = Vec::new();
 
@@ -49,10 +43,10 @@ impl Calculator {
                                     let can_make_op = digit.checked_add(c as u32 - 48); 
                                     match can_make_op {
                                         Some(digit) => *n = digit, // add c to n, if n is 2 and c 5 will become 25
-                                        None => return Err(Error::Overflow(OVERFLOW_NUMERIC_VALUE.to_string())),
+                                        None => return Err(CustomError::Generic("The numeric value that is outside of the range".to_string())),
                                     }
                                 }
-                                None => return Err(Error::Overflow(OVERFLOW_NUMERIC_VALUE.to_string())),
+                                None => return Err(CustomError::Generic("The numeric value that is outside of the range".to_string())),
                             }
                         }
                     }
@@ -135,7 +129,7 @@ impl Calculator {
                 }
                 ' ' => {}
                 '\n' => {}
-                _ => return Err(Error::BadToken(c)),
+                _ => return Err(CustomError::Generic(format!("BadToken {}", c))),
             }
         }
 
@@ -148,7 +142,7 @@ impl Calculator {
         Ok(rpn)
     }
 
-    pub fn evaluate(rpn: Vec<Token>) -> Result<f64, Error> {
+    pub fn evaluate(rpn: Vec<Token>) -> Result<f64, CustomError> {
         let mut rpn = rpn.clone();
         rpn.reverse();
         let result = utils::evaluate(rpn);

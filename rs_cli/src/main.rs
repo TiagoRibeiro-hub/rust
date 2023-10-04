@@ -2,6 +2,7 @@ mod calculator;
 mod process_args;
 mod error;
 mod response;
+mod process_img;
 use colored::Colorize;
 
 fn main() {

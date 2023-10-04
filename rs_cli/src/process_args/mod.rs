@@ -15,8 +15,11 @@ pub fn process_args() -> Response {
 
     match args.get(1) {
         Some(op) => {
-            if op == "calc" {
-                utils::calculator(args, &mut response);
+            if op == "--calc" {
+                utils::calculator(&args, &mut response);
+            }
+            if op == "--img" {
+                utils::process_img(&args, &mut response);
             }
             else{
                 response.message = format!("There is no operation '{}'", op);

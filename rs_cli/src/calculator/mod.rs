@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::error::CustomError;
 mod utils;
 
@@ -16,6 +18,40 @@ pub enum Operator {
 pub enum Token {
     Operand(u32),
     Operator(Operator),
+}
+
+struct Postfix(Vec<Token>);
+
+impl fmt::Display for Postfix {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut display = String::from("");
+        let clone = self.0.clone();
+        for token in clone {
+            match token {
+                Token::Operand(n) => {
+                    display += &n.to_string();
+                    display += " "
+                },
+                Token::Operator(Operator::Add) => {
+                    display += "+";
+                }
+                Token::Operator(Operator::Sub) => {
+                    display += "-";
+                }
+                Token::Operator(Operator::Mul) => {
+                    display += "*";
+                }
+                Token::Operator(Operator::Div) => {
+                    display += "/";
+                }
+                Token::Operator(Operator::Expoent) => {
+                    display += "^";
+                }
+                _ =>{},
+            }
+        }
+        write!(f, "{}", display)
+    }
 }
 
 pub struct Calculator {}
@@ -146,6 +182,11 @@ impl Calculator {
         rpn.reverse();
         let result = utils::evaluate(rpn);
         Ok(result)
+
+    }
+
+    pub fn display_rpn(rpn: Vec<Token>) -> String {
+        Postfix(rpn).to_string()
     }
 }
 

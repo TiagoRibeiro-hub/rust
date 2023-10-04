@@ -9,16 +9,16 @@ pub fn calculator(args: Vec<String>, response: &mut Response) {
     let rpn_result = Calculator::rpn(expr);
     match rpn_result {
         Ok(rpn) => {
-            let result = Calculator::evaluate(rpn);
+            let result = Calculator::evaluate(rpn.clone());
             match result {
                 Ok(final_result) => {
                     if args.len() == 4 {
                         let show_rpn: &str = args[3].as_ref();
                         if show_rpn == "--s" {
                             response.message = format!(
-                                "Expression: {},\nRPN:{},\nResult: {}",
-                                expr, "rpn", final_result
-                            ); // TODO implements display for rpn
+                                "Expression: {},\nRPN: {},\nResult: {}",
+                                expr, Calculator::display_rpn(rpn), final_result
+                            );
                             response.succeed = true;
                         } else {
                             response.message = format!("'{}' is not a known parameter", show_rpn);

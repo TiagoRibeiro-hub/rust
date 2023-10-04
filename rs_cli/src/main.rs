@@ -3,6 +3,7 @@ mod process_args;
 mod error;
 mod response;
 mod process_img;
+mod global;
 use colored::Colorize;
 
 fn main() {

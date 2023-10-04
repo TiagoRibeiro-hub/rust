@@ -3,6 +3,8 @@ use std::env::args;
 use crate::response::Response;
 
 mod utils;
+mod calc;
+mod pr_img;
 
 pub fn process_args() -> Response {
     let args: Vec<String> = args().collect();

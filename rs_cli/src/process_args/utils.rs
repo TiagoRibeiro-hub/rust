@@ -25,7 +25,7 @@ pub fn file_path_output_is_empty(
     if arg == "--o" {
         let path: &str = arg_value;
         if path.is_empty() {
-            response.message = "File path to save is empty".to_string();
+            response.message = "File path output is empty".to_string();
             return ControlFlow::Break(());
         }
         *save_path = path.to_string();

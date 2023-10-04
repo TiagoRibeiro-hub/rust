@@ -20,7 +20,7 @@ pub fn process_args() -> Response {
             if op == "--calc" {
                 utils::calculator(&args, &mut response);
             }
-            if op == "--img" {
+            else if op == "--img" {
                 utils::process_img(&args, &mut response);
             }
             else{

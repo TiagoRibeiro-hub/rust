@@ -55,62 +55,9 @@ pub fn process_img(args: &Vec<String>) -> Response {
             saved = gray_img.save(save_path);
         }
     } else if second_op == "--p" {
-        if third_op == "--D" {
-            let dimensions_str: &str = args[5].as_ref();
-            let idx_res = dimensions_str.find(',');
-            match idx_res {
-                Some(_) => {
-                    let width_str = global::slice_string(dimensions_str, ',', true);
-                    let width_parse_res = width_str.parse::<u32>();
-                    match width_parse_res {
-                        Ok(width) => {
-                            let height_str = global::slice_string(dimensions_str, ',', false);
-                            let height_parse_res = height_str.parse::<u32>();
-                            match height_parse_res {
-                                Ok(height) => {
-                                    image.dimensions = (width, height);
-                                    needs_save_path = true
-                                }
-                                Err(_) => {
-                                    response.message = "Invalid value for height".to_string();
-                                    return response;
-                                }
-                            }
-                        }
-                        Err(_) => {
-                            response.message = "Invalid value for width".to_string();
-                            return response;
-                        }
-                    }
-                }
-                None => {
-                    response.message = "Invalid value for dimension".to_string();
-                    return response;
-                }
-            }
-        } else if third_op == "--o" {
-            if let ControlFlow::Break(_) = utils::file_path_output_is_empty(
-                third_op,
-                args[5].as_ref(),
-                &mut response,
-                &mut save_path,
-            ) {
-                return response;
-            }
-        } else {
-            response.message = format!("'{}' is not a known parameter", third_op);
-            return response;
+        if let Some(value) = pixelate(third_op, args, image, &mut saved) {
+            return value;
         }
-        let pixelate_img = image.pixelate();
-        if needs_save_path {
-            if let ControlFlow::Break(_) =
-                get_last_arg_saved_path(args, &mut response, &mut save_path)
-            {
-                return response;
-            }
-        }
-        save_path += "/pixelated.png";
-        saved = pixelate_img.save(save_path);
     } else if second_op == "--a" {
         todo!("ascii");
     }
@@ -126,6 +73,75 @@ pub fn process_img(args: &Vec<String>) -> Response {
     }
 
     response
+}
+
+fn pixelate(
+    third_op: &str,
+    args: &Vec<String>,
+    mut image: Image,
+    saved: &mut Result<(), image::ImageError>,
+) -> Option<Response> {
+    let mut response = Response::default();
+    if third_op == "--D" {
+        let dimensions_str: &str = args[5].as_ref();
+        let idx_res = dimensions_str.find(',');
+        match idx_res {
+            Some(_) => {
+                let width_str = global::slice_string(dimensions_str, ',', true);
+                let width_parse_res = width_str.parse::<u32>();
+                match width_parse_res {
+                    Ok(width) => {
+                        let height_str = global::slice_string(dimensions_str, ',', false);
+                        let height_parse_res = height_str.parse::<u32>();
+                        match height_parse_res {
+                            Ok(height) => {
+                                image.dimensions = (width, height);
+                            }
+                            Err(_) => {
+                                response.message = "Invalid value for height".to_string();
+                                return Some(response);
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        response.message = "Invalid value for width".to_string();
+                        return Some(response);
+                    }
+                }
+            }
+            None => {
+                response.message = "Invalid value for dimension".to_string();
+                return Some(response);
+            }
+        }
+    } else if third_op != "--o" {
+        //* third_op must be or --D or --o
+        response.message = format!("'{}' is not a known parameter", third_op);
+        return Some(response);
+    }
+    let pixelate_img = image.pixelate();
+
+    let mut save_path: String = String::default();
+
+    //* here third_op was --o
+    let mut arg_op = third_op;
+    let mut arg_param = args[5].as_ref();
+
+    if third_op != "--o" {
+        //* here third_op was --D
+        arg_op = args[6].as_ref();
+        arg_param = args[7].as_ref();
+    }
+
+    if let ControlFlow::Break(_) =
+        utils::file_path_output_is_empty(arg_op, arg_param, &mut response, &mut save_path)
+    {
+        return Some(response);
+    }
+
+    save_path += "/pixelated.png";
+    *saved = pixelate_img.save(save_path);
+    None
 }
 
 fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), Response> {

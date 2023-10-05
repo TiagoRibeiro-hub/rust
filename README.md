@@ -21,8 +21,9 @@
     - (--o) {file_path_to_save}
 
 - exemple: 
-    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p --D  "5,5"" --o "../imgs/"
-    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o "../imgs/"
+    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --D   "5,5"  --o "../imgs/"
+                     1                      2                   3    4      5      6      7      8
+    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o  "../imgs/"
 
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --G "0.8" --o "../imgs/"
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/"

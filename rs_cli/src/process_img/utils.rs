@@ -21,17 +21,55 @@ fn gray_scale_operation(pixel: &mut Rgba<u8>, image: &Image) -> u8 {
     
 }
 
-pub fn gray_scale(image: &Image) -> ImageRgba {
+fn set_buffer(image: &Image) -> (DynamicImage, ImageBuffer<Rgba<u8>, Vec<u8>>) {
     let img = open(&image.path);
     let img_dims = img.to_rgba8().dimensions();
 
-    let mut img_buffer: ImageBuffer<image::Rgba<u8>, Vec<u8>> =
+    let img_buffer: ImageBuffer<image::Rgba<u8>, Vec<u8>> =
         ImageBuffer::new(img_dims.0, img_dims.1);
+    (img, img_buffer)
+}
+
+pub fn gray_scale(image: &Image) -> ImageRgba {
+    let (img, mut img_buffer) = set_buffer(image);
 
     for (w, h, pixel) in img_buffer.enumerate_pixels_mut() {
         *pixel = img.get_pixel(w, h);
         let grayscale = gray_scale_operation(pixel, image);
         *pixel = image::Rgba([grayscale, grayscale, grayscale, pixel[3]]);
+    }
+    img_buffer
+}
+
+pub fn blue_scale(image: &Image) -> ImageRgba {
+    let (img, mut img_buffer) = set_buffer(image);
+
+    for (w, h, pixel) in img_buffer.enumerate_pixels_mut() {
+        *pixel = img.get_pixel(w, h);
+        let grayscale = gray_scale_operation(pixel, image);
+        *pixel = image::Rgba([0, 0, grayscale, pixel[3]]);
+    }
+    img_buffer
+}
+
+pub fn green_scale(image: &Image) -> ImageRgba {
+    let (img, mut img_buffer) = set_buffer(image);
+
+    for (w, h, pixel) in img_buffer.enumerate_pixels_mut() {
+        *pixel = img.get_pixel(w, h);
+        let grayscale = gray_scale_operation(pixel, image);
+        *pixel = image::Rgba([0, grayscale, 0, pixel[3]]);
+    }
+    img_buffer
+}
+
+pub fn red_scale(image: &Image) -> ImageRgba {
+    let (img, mut img_buffer) = set_buffer(image);
+
+    for (w, h, pixel) in img_buffer.enumerate_pixels_mut() {
+        *pixel = img.get_pixel(w, h);
+        let grayscale = gray_scale_operation(pixel, image);
+        *pixel = image::Rgba([grayscale, 0, 0, pixel[3]]);
     }
     img_buffer
 }

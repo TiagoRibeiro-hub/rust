@@ -3,12 +3,12 @@
 #### how to run:
 - Allowed characters: + - * / ^ ( )
 
-- --calc "{expression}"
+- (--calc) "{expression}"
     - (--s) shows rpn 
 
 ### process images:
 #### how to run:
-- --img {file_path}
+- (--img) {file_path}
     - (--cs) color scale 
         - (--gs) gray scale 
         - (--bs) blue scale 
@@ -18,12 +18,13 @@
     - (--p) pixelated 
         - (--D "5,5") dimensions, (width,height) - default (5,5)
     - (--a) ascii
-    - (--o) {file_path_to_save}
+- (--o) {file_path_to_save}
+- (--n) {file_name}, without extension
 
 - exemple: 
     - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --D   "5,5"  --o "../imgs/"
-    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o  "../imgs/"
+    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o  "../imgs/" -n teste
 
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --G "0.8" --o "../imgs/"
-    - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/"
+    - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/" --n blue_scale
  

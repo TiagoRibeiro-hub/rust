@@ -48,13 +48,13 @@ impl Image {
                 utils::gray_scale(self)
             },
             ColorScale::Blue() => {
-                todo!()
+                utils::blue_scale(self)
             },
             ColorScale::Green() => {
-                todo!()
+                utils::green_scale(self)
             },
             ColorScale::Red() => {
-                todo!()
+                utils::red_scale(self)
             },
                 
         }

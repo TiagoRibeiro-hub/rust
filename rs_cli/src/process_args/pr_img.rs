@@ -4,35 +4,10 @@ use super::utils;
 use crate::{global, process_img::Image, response::Response};
 
 pub fn process_img(args: &Vec<String>) -> Response {
-    let mut response = Response::default();
-
-    if let ControlFlow::Break(_) = utils::check_parameters(args, &mut response, 9) {
-        return response;
-    }
-
-    let file_path: &str = args[2].as_ref();
-    if file_path.is_empty() {
-        response.message = "File path is empty".to_string();
-        return response;
-    }
-
-    let second_op: &str = args[3].as_ref();
-    if second_op != "--cs" && second_op != "--p" && second_op != "--a" {
-        response.message = format!("'{}' is not a known parameter", second_op);
-        return response;
-    }
-
-    let third_op: &str = args[4].as_ref();
-    if third_op != "--o"
-        && third_op != "--gs"
-        && third_op != "--bs"
-        && third_op != "--grs"
-        && third_op != "--rs"
-        && third_op != "--D"
-    {
-        response.message = format!("'{}' is not a known parameter", third_op);
-        return response;
-    }
+    let (mut response, file_path, second_op, third_op) = match args_validation(args) {
+        Ok(value) => value,
+        Err(value) => return value,
+    };
 
     let mut save_path: String = String::default();
     let mut image = Image::from(file_path);
@@ -113,8 +88,7 @@ pub fn process_img(args: &Vec<String>) -> Response {
                     return response;
                 }
             }
-        }
-        else if third_op == "--o" {
+        } else if third_op == "--o" {
             if let ControlFlow::Break(_) = utils::file_path_output_is_empty(
                 third_op,
                 args[5].as_ref(),
@@ -152,6 +126,35 @@ pub fn process_img(args: &Vec<String>) -> Response {
     }
 
     response
+}
+
+fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), Response> {
+    let mut response = Response::default();
+    if let ControlFlow::Break(_) = utils::check_parameters(args, &mut response, 9) {
+        return Err(response);
+    }
+    let file_path: &str = args[2].as_ref();
+    if file_path.is_empty() {
+        response.message = "File path is empty".to_string();
+        return Err(response);
+    }
+    let second_op: &str = args[3].as_ref();
+    if second_op != "--cs" && second_op != "--p" && second_op != "--a" {
+        response.message = format!("'{}' is not a known parameter", second_op);
+        return Err(response);
+    }
+    let third_op: &str = args[4].as_ref();
+    if third_op != "--o"
+        && third_op != "--gs"
+        && third_op != "--bs"
+        && third_op != "--grs"
+        && third_op != "--rs"
+        && third_op != "--D"
+    {
+        response.message = format!("'{}' is not a known parameter", third_op);
+        return Err(response);
+    }
+    Ok((response, file_path, second_op, third_op))
 }
 
 fn get_last_arg_saved_path(

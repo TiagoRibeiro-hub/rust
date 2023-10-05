@@ -10,6 +10,10 @@ fn gray_scale_operation(pixel: &mut Rgba<u8>, image: &Image) -> u8 {
     let r = pixel[0] as f64;
     let g = pixel[1] as f64;
     let b = pixel[2] as f64;
+    if r == g && g == b {
+        // already on grayscale
+        return r.powf(image.gama) as u8;
+    }
     let r = (0.2126 * r).powf(image.gama) as u8;
     let g = (0.7152 * g).powf(image.gama) as u8;
     let b = (0.0722 * b).powf(image.gama) as u8;

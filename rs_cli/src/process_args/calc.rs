@@ -27,7 +27,7 @@ pub fn calculator(args: &Vec<String>) -> Response {
                             );
                             response.succeed = true;
                         } else {
-                            response.message = format!("'{}' is not a known parameter", show_rpn);
+                            response.message = format!("'{}' is not a known parameter for this position", show_rpn);
                         };
                     } else {
                         response.message =

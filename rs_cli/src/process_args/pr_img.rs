@@ -1,7 +1,11 @@
 use std::ops::ControlFlow;
 
 use super::utils;
-use crate::{global, process_img::Image, response::Response};
+use crate::{
+    global,
+    process_img::{ColorScale, Image},
+    response::Response,
+};
 
 pub fn process_img(args: &Vec<String>) -> Response {
     let (mut response, file_path, second_op, third_op) = match args_validation(args) {
@@ -20,13 +24,15 @@ pub fn process_img(args: &Vec<String>) -> Response {
         todo!("ascii");
     }
 
-    match saved {
-        Ok(_) => {
-            response.message = "Image processed and saved.".to_string();
-            response.succeed = true;
-        }
-        Err(_) => {
-            response.message = "Unable to save image".to_string();
+    if response.succeed {
+        match saved {
+            Ok(_) => {
+                response.message = "Image processed and saved.".to_string();
+                response.succeed = true;
+            }
+            Err(_) => {
+                response.message = "Unable to save image".to_string();
+            }
         }
     }
 
@@ -56,10 +62,20 @@ fn color_scale(
             }
         } else if fourth_op != "--o" {
             //* fourth_op must be --G or --o
-            response.message = format!("'{}' is not a known parameter", fourth_op);
+            response.message =
+                format!("'{}' is not a known parameter for this position", fourth_op);
             return response;
         }
-        let gray_img = image.gray_scale();
+
+        let mut color = ColorScale::defaut();
+        if third_op == "--bs" {
+            color = ColorScale::Blue();
+        } else if third_op == "--grs" {
+            color = ColorScale::Green();
+        } else if third_op == "--rs" {
+            color = ColorScale::Red();
+        }
+        let gray_img = image.color_scale(color);
 
         let mut save_path: String = String::default();
         //* here fourth_op was --o
@@ -78,7 +94,12 @@ fn color_scale(
         }
         save_path += "/gray_scale.png";
         *saved = gray_img.save(save_path);
+        response.succeed = true;
+    } else {
+        response.message = format!("'{}' is not a known parameter for this position", third_op);
+        return response;
     }
+
     response
 }
 
@@ -123,7 +144,7 @@ fn pixelate(
         }
     } else if third_op != "--o" {
         //* third_op must be or --D or --o
-        response.message = format!("'{}' is not a known parameter", third_op);
+        response.message = format!("'{}' is not a known parameter for this position", third_op);
         return response;
     }
     let pixelate_img = image.pixelate();
@@ -147,6 +168,8 @@ fn pixelate(
 
     save_path += "/pixelated.png";
     *saved = pixelate_img.save(save_path);
+    response.succeed = true;
+
     response
 }
 
@@ -162,7 +185,7 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
     }
     let second_op: &str = args[3].as_ref();
     if second_op != "--cs" && second_op != "--p" && second_op != "--a" {
-        response.message = format!("'{}' is not a known parameter", second_op);
+        response.message = format!("'{}' is not a known parameter for this position", second_op);
         return Err(response);
     }
     let third_op: &str = args[4].as_ref();
@@ -173,7 +196,7 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
         && third_op != "--rs"
         && third_op != "--D"
     {
-        response.message = format!("'{}' is not a known parameter", third_op);
+        response.message = format!("'{}' is not a known parameter for this position", third_op);
         return Err(response);
     }
     Ok((response, file_path, second_op, third_op))

@@ -2,8 +2,6 @@
 // grayscale = 0.2126 R ^gama + 0.7152 G ^gama + 0.0722 B ^gama
 // grayscale = 0.299 R ^gama + 0.587 G ^gama + 0.11 B ^gama => For images in color spaces such as Y'UV and its relatives, which are used in standard color TV and video systems
 
-// CHARS = [ ]
-
 mod utils;
 
 use image::{GenericImageView, ImageBuffer, Rgba};
@@ -29,9 +27,37 @@ impl From<&str> for Image {
      }
 }
 
+
+pub enum ColorScale {
+    Gray(),
+    Blue(),
+    Green(),
+    Red(),
+}
+impl ColorScale {
+    pub(crate) fn defaut() -> ColorScale {
+        ColorScale::Gray()
+    }
+}
+
+
 impl Image {
-    pub fn gray_scale(&self) -> ImageRgba {
-        utils::gray_scale(self)
+    pub fn color_scale(&self, color: ColorScale) -> ImageRgba {
+        match color {
+            ColorScale::Gray() => {
+                utils::gray_scale(self)
+            },
+            ColorScale::Blue() => {
+                todo!()
+            },
+            ColorScale::Green() => {
+                todo!()
+            },
+            ColorScale::Red() => {
+                todo!()
+            },
+                
+        }
     }
 
     pub fn pixelate(&self) -> ImageRgba {

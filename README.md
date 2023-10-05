@@ -18,6 +18,7 @@
     - (--p) pixelated 
         - (--D "5,5") dimensions, (width,height) - default (5,5)
     - (--a) ascii
+        - (--gs) gray scale
 - (--o) {file_path_to_save}
 - (--n) {file_name}, without extension
 
@@ -27,4 +28,6 @@
 
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --G "0.8" --o "../imgs/"
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/" --n blue_scale
+    
+    - ascii => --img "../imgs/chestnut_tailed_starling.jpg" --a --gs
  

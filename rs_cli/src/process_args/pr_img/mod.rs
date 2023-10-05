@@ -13,26 +13,19 @@ pub fn process_img(args: &Vec<String>) -> Response {
     };
 
     let image = Image::from(file_path);
-    let mut saved: Result<(), image::ImageError> = Ok(());
-
     if second_op == "--cs" {
-        response = color_scale::process(third_op, args, image, &mut saved);
+        response = color_scale::process(third_op, args, image);
     } else if second_op == "--p" {
-        response = pixelate::process(third_op, args, image, &mut saved);
+        response = pixelate::process(third_op, args, image);
     } else if second_op == "--a" {
-        response = ascii_art::process(third_op, args, image, &mut saved);
+        response = ascii_art::process(third_op, args, image);
     }
 
     if response.succeed {
-        match saved {
-            Ok(_) => {
-                response.message = "Image processed and saved.".to_string();
-                response.succeed = true;
-            }
-            Err(_) => {
-                response.message = "Unable to save image".to_string();
-            }
-        }
+        response.message = "Image processed and saved.".to_string();
+    }
+    else {
+        response.message = "Unable to save image".to_string();
     }
 
     response
@@ -65,4 +58,16 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
         return Err(response);
     }
     Ok((response, file_path, second_op, third_op))
+}
+
+fn save_img(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, save_path: String) -> bool {
+    let saved = img.save(save_path);
+    match saved {
+        Ok(_) => {
+            true
+        }
+        Err(_) => {
+            false
+        }
+    }
 }

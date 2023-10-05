@@ -1,17 +1,12 @@
 use std::ops::ControlFlow;
 
-use super::utils;
+use super::{utils, save_img};
 use crate::{
     process_img::{ColorScale, Image},
     response::Response,
 };
 
-pub fn process(
-    third_op: &str,
-    args: &Vec<String>,
-    mut image: Image,
-    saved: &mut Result<(), image::ImageError>,
-) -> Response {
+pub fn process(third_op: &str, args: &Vec<String>, mut image: Image) -> Response {
     let mut response = Response::default();
     if third_op == "--gs" || third_op == "--bs" || third_op == "--grs" || third_op == "--rs" {
         let fourth_op: &str = args[5].as_ref();
@@ -43,7 +38,7 @@ pub fn process(
             color = ColorScale::Red();
         }
         let gray_img = image.color_scale(color);
-        
+
         let mut save_path: String = String::default();
         //* here fourth_op was --o
         let mut arg_op = fourth_op;
@@ -60,8 +55,7 @@ pub fn process(
                     file_name = args[10].as_ref();
                 }
             }
-        }
-        else if args.len() == 8 {
+        } else if args.len() == 8 {
             let file_name_op: &str = args[7].as_ref();
             if file_name_op == "--n" {
                 file_name = args[8].as_ref();
@@ -73,15 +67,14 @@ pub fn process(
         {
             return response;
         }
-        
+
         if file_name.is_empty() {
             save_path += "/color_scale.png";
         } else {
             save_path += file_name; // TODO remove possible extension
             save_path += ".png";
         }
-        *saved = gray_img.save(save_path);
-        response.succeed = true;
+        response.succeed = save_img(gray_img, save_path);
     } else {
         //* third_op must be --gs || --bs || --grs || --rs
         response.message = format!("'{}' is not a known parameter for this position", third_op);
@@ -90,3 +83,5 @@ pub fn process(
 
     response
 }
+
+

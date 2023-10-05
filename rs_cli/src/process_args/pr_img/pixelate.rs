@@ -1,11 +1,12 @@
 use crate::{process_args::utils, process_img::Image, response::Response, global::str_utils};
 use std::ops::ControlFlow;
 
+use super::save_img;
+
 pub fn process(
     third_op: &str,
     args: &Vec<String>,
     mut image: Image,
-    saved: &mut Result<(), image::ImageError>,
 ) -> Response {
     let mut response = Response::default();
     if third_op == "--D" {
@@ -85,8 +86,6 @@ pub fn process(
         save_path += ".png";
     }
 
-    *saved = pixelate_img.save(save_path);
-    response.succeed = true;
-
+    response.succeed = save_img(pixelate_img, save_path);
     response
 }

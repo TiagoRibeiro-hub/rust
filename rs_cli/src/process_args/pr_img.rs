@@ -9,55 +9,13 @@ pub fn process_img(args: &Vec<String>) -> Response {
         Err(value) => return value,
     };
 
-    let mut save_path: String = String::default();
-    let mut image = Image::from(file_path);
+    let image = Image::from(file_path);
     let mut saved: Result<(), image::ImageError> = Ok(());
-    let mut needs_save_path = false;
 
     if second_op == "--cs" {
-        if third_op == "--gs" || third_op == "--bs" || third_op == "--grs" || third_op == "--rs" {
-            let fourth_op: &str = args[5].as_ref();
-            if fourth_op == "--G" {
-                let gama_str: &str = args[6].as_ref();
-                let gama_parse_res = gama_str.parse::<f64>();
-                match gama_parse_res {
-                    Ok(gama) => {
-                        image.gama = gama;
-                        needs_save_path = true
-                    }
-                    Err(_) => {
-                        response.message = "Invalid value for gama".to_string();
-                        return response;
-                    }
-                }
-            } else if fourth_op == "--o" {
-                if let ControlFlow::Break(_) = utils::file_path_output_is_empty(
-                    fourth_op,
-                    args[6].as_ref(),
-                    &mut response,
-                    &mut save_path,
-                ) {
-                    return response;
-                }
-            } else {
-                response.message = format!("'{}' is not a known parameter", fourth_op);
-                return response;
-            }
-            let gray_img = image.gray_scale();
-            if needs_save_path {
-                if let ControlFlow::Break(_) =
-                    get_last_arg_saved_path(args, &mut response, &mut save_path)
-                {
-                    return response;
-                }
-            }
-            save_path += "/gray_scale.png";
-            saved = gray_img.save(save_path);
-        }
+        response = color_scale(third_op, args, image, &mut saved);
     } else if second_op == "--p" {
-        if let Some(value) = pixelate(third_op, args, image, &mut saved) {
-            return value;
-        }
+        response = pixelate(third_op, args, image, &mut saved);
     } else if second_op == "--a" {
         todo!("ascii");
     }
@@ -75,12 +33,61 @@ pub fn process_img(args: &Vec<String>) -> Response {
     response
 }
 
+fn color_scale(
+    third_op: &str,
+    args: &Vec<String>,
+    mut image: Image,
+    saved: &mut Result<(), image::ImageError>,
+) -> Response {
+    let mut response = Response::default();
+    if third_op == "--gs" || third_op == "--bs" || third_op == "--grs" || third_op == "--rs" {
+        let fourth_op: &str = args[5].as_ref();
+        if fourth_op == "--G" {
+            let gama_str: &str = args[6].as_ref();
+            let gama_parse_res = gama_str.parse::<f64>();
+            match gama_parse_res {
+                Ok(gama) => {
+                    image.gama = gama;
+                }
+                Err(_) => {
+                    response.message = "Invalid value for gama".to_string();
+                    return response;
+                }
+            }
+        } else if fourth_op != "--o" {
+            //* fourth_op must be --G or --o
+            response.message = format!("'{}' is not a known parameter", fourth_op);
+            return response;
+        }
+        let gray_img = image.gray_scale();
+
+        let mut save_path: String = String::default();
+        //* here fourth_op was --o
+        let mut arg_op = fourth_op;
+        let mut arg_param = args[6].as_ref();
+        if fourth_op != "--o" {
+            //* here fourth_op was --G
+            arg_op = args[7].as_ref();
+            arg_param = args[8].as_ref();
+        }
+
+        if let ControlFlow::Break(_) =
+            utils::file_path_output_is_empty(arg_op, arg_param, &mut response, &mut save_path)
+        {
+            return response;
+        }
+        save_path += "/gray_scale.png";
+        *saved = gray_img.save(save_path);
+    }
+    response
+}
+
 fn pixelate(
     third_op: &str,
     args: &Vec<String>,
     mut image: Image,
     saved: &mut Result<(), image::ImageError>,
-) -> Option<Response> {
+) -> Response {
     let mut response = Response::default();
     if third_op == "--D" {
         let dimensions_str: &str = args[5].as_ref();
@@ -99,30 +106,29 @@ fn pixelate(
                             }
                             Err(_) => {
                                 response.message = "Invalid value for height".to_string();
-                                return Some(response);
+                                return response;
                             }
                         }
                     }
                     Err(_) => {
                         response.message = "Invalid value for width".to_string();
-                        return Some(response);
+                        return response;
                     }
                 }
             }
             None => {
                 response.message = "Invalid value for dimension".to_string();
-                return Some(response);
+                return response;
             }
         }
     } else if third_op != "--o" {
         //* third_op must be or --D or --o
         response.message = format!("'{}' is not a known parameter", third_op);
-        return Some(response);
+        return response;
     }
     let pixelate_img = image.pixelate();
 
     let mut save_path: String = String::default();
-
     //* here third_op was --o
     let mut arg_op = third_op;
     let mut arg_param = args[5].as_ref();
@@ -136,12 +142,12 @@ fn pixelate(
     if let ControlFlow::Break(_) =
         utils::file_path_output_is_empty(arg_op, arg_param, &mut response, &mut save_path)
     {
-        return Some(response);
+        return response;
     }
 
     save_path += "/pixelated.png";
     *saved = pixelate_img.save(save_path);
-    None
+    response
 }
 
 fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), Response> {
@@ -171,17 +177,4 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
         return Err(response);
     }
     Ok((response, file_path, second_op, third_op))
-}
-
-fn get_last_arg_saved_path(
-    args: &Vec<String>,
-    response: &mut Response,
-    save_path: &mut String,
-) -> ControlFlow<()> {
-    if let ControlFlow::Break(_) =
-        utils::file_path_output_is_empty(args[7].as_ref(), args[8].as_ref(), response, save_path)
-    {
-        return ControlFlow::Break(());
-    }
-    ControlFlow::Continue(())
 }

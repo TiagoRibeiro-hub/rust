@@ -14,7 +14,7 @@
         - (--bs) blue scale 
         - (--grs) green scale 
         - (--rs) red scale
-            - (--G "1.0") gama, value between 0.0 (darken) and 1.0 (brighten) - default 1.0
+            - (--G "1.0") value between 0.0 (darken) and 1.0 (brighten) - default 1.0
     - (--p) pixelated 
         - (--D "5,5") dimensions, (width,height) - default (5,5)
     - (--a) ascii
@@ -22,7 +22,6 @@
 
 - exemple: 
     - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --D   "5,5"  --o "../imgs/"
-                     1                      2                   3    4      5      6      7      8
     - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o  "../imgs/"
 
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --G "0.8" --o "../imgs/"

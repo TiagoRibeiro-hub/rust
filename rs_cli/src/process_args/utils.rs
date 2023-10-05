@@ -1,6 +1,5 @@
 use std::ops::ControlFlow;
 use crate::response::Response;
-
 use super::{calc, pr_img};
 
 
@@ -30,15 +29,19 @@ pub fn file_path_output_is_empty(
         }
         *save_path = path.to_string();
     }
+    else {
+        response.message = format!("'{}' is not a known parameter for output", arg);
+        return ControlFlow::Break(());
+    }
     ControlFlow::Continue(())
 }
 
-pub fn calculator(args: &Vec<String>, response: &mut Response) {
-    calc::calculator(args, response)
+pub fn calculator(args: &Vec<String>) -> Response {
+    calc::calculator(args)
 }
 
-pub fn process_img(args: &Vec<String>, response: &mut Response) {
-    pr_img::process_img(args, response)
+pub fn process_img(args: &Vec<String>) -> Response {
+    pr_img::process_img(args)
 }
 
 

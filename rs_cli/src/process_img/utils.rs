@@ -17,7 +17,7 @@ fn gray_scale_operation(pixel: &mut Rgba<u8>, image: &Image) -> u8 {
     
 }
 
-pub fn gray_scale(image: Image) -> ImageRgba {
+pub fn gray_scale(image: &Image) -> ImageRgba {
     let img = open(&image.path);
     let img_dims = img.to_rgba8().dimensions();
 
@@ -26,7 +26,7 @@ pub fn gray_scale(image: Image) -> ImageRgba {
 
     for (w, h, pixel) in img_buffer.enumerate_pixels_mut() {
         *pixel = img.get_pixel(w, h);
-        let grayscale = gray_scale_operation(pixel, &image);
+        let grayscale = gray_scale_operation(pixel, image);
         *pixel = image::Rgba([grayscale, grayscale, grayscale, pixel[3]]);
     }
     img_buffer
@@ -46,4 +46,20 @@ pub fn resize(img: &ImageRgba, dims: (u32, u32)) -> ImageRgba {
         *pixel = *img.get_pixel(w, h);
     }
     resized
+}
+
+#[allow(unused_variables, dead_code)]
+pub fn ascii_art(image: Image) -> ImageRgba {
+    let img = open(&image.path);
+    let img_dims = img.to_rgba8().dimensions();
+
+    let mut img_buffer: ImageBuffer<image::Rgba<u8>, Vec<u8>> =
+        ImageBuffer::new(img_dims.0, img_dims.1);
+
+    for (w, h, pixel) in img_buffer.enumerate_pixels_mut() {
+        *pixel = img.get_pixel(w, h);
+        let grayscale = gray_scale_operation(pixel, &image);
+        todo!()
+    }
+    img_buffer
 }

@@ -4,6 +4,7 @@ use super::utils;
 use crate::{process_img::Image, response::Response};
 mod color_scale;
 mod pixelate;
+mod ascii_art;
 
 pub fn process_img(args: &Vec<String>) -> Response {
     let (mut response, file_path, second_op, third_op) = match args_validation(args) {
@@ -19,7 +20,7 @@ pub fn process_img(args: &Vec<String>) -> Response {
     } else if second_op == "--p" {
         response = pixelate::process(third_op, args, image, &mut saved);
     } else if second_op == "--a" {
-        todo!("ascii");
+        response = ascii_art::process(third_op, args, image, &mut saved);
     }
 
     if response.succeed {

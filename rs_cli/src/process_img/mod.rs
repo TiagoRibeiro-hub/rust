@@ -6,6 +6,8 @@ mod utils;
 
 use image::{GenericImageView, ImageBuffer, Rgba};
 
+use crate::error::CustomError;
+
 type ImageRgba = ImageBuffer<Rgba<u8>, Vec<u8>>;
 
 #[derive(Debug)]
@@ -73,7 +75,7 @@ impl Image {
         utils::resize(&small_img, img_dims) // pixelate
     }
 
-    pub fn ascii_art(self) -> ImageRgba {
+    pub fn ascii_art(&self) -> Result<String, CustomError> {
         utils::ascii_art(self)
     }
 }

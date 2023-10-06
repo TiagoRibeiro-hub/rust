@@ -17,10 +17,10 @@ pub fn process_args() -> Response {
     match args.get(1) {
         Some(op) => {
             if op == "--calc" {
-                response = utils::calculator(&args);
+                response = utils::calculator(args);
             }
             else if op == "--img" {
-                response = utils::process_img(&args);
+                response = utils::process_img(args);
             }
             else{
                 response.message = format!("There is no operation '{}'", op);

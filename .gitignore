@@ -15,6 +15,7 @@ Cargo.lock
 
 # files
 launch.json
+test.rs
 
 # folders
 imgs/

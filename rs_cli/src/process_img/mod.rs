@@ -6,25 +6,23 @@ mod utils;
 
 use image::{GenericImageView, ImageBuffer, Rgba};
 
-use crate::error::CustomError;
-
 type ImageRgba = ImageBuffer<Rgba<u8>, Vec<u8>>;
 
 #[derive(Debug)]
-pub struct Image {
+pub struct Image<'a> {
     pub path: String,
     pub gama: f64,
     pub dimensions: (u32, u32),
-    pub chars: Vec<char>,
+    pub chars: Vec<&'a str>,
 }
 
-impl From<&str> for Image {
+impl From<&str> for Image<'_> {
     fn from(path: &str) -> Self {       
         Image {
             path: path.to_string(),
             gama: 1.0,
             dimensions: (5,5),
-            chars: vec!['@', '#', '$', '%', '?', '*', ':', '+', '-',',', '.',' ']
+            chars: vec![" ",".",",","-","~","+"]
         }
      }
 }
@@ -43,7 +41,7 @@ impl ColorScale {
 }
 
 
-impl Image {
+impl Image<'_> {
     pub fn color_scale(&self, color: ColorScale) -> ImageRgba {
         match color {
             ColorScale::Gray() => {
@@ -75,7 +73,7 @@ impl Image {
         utils::resize(&small_img, img_dims) // pixelate
     }
 
-    pub fn ascii_art(&self) -> Result<String, CustomError> {
+    pub fn _ascii_art(&self) -> ImageRgba {
         utils::ascii_art(self)
     }
 }

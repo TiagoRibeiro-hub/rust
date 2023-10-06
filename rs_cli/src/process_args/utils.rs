@@ -36,11 +36,11 @@ pub fn file_path_output_is_empty(
     ControlFlow::Continue(())
 }
 
-pub fn calculator(args: &Vec<String>) -> Response {
+pub fn calculator(args: Vec<String>) -> Response {
     calc::calculator(args)
 }
 
-pub fn process_img(args: &Vec<String>) -> Response {
+pub fn process_img(args: Vec<String>) -> Response {
     pr_img::process_img(args)
 }
 

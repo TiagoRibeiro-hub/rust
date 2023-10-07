@@ -1,10 +1,10 @@
 use std::ops::ControlFlow;
 
 use super::utils;
-use crate::{process_img::Image, response::Response};
+use crate::{process_img::models::ProcessImageObj, response::Response};
 mod color_scale;
 mod pixelate;
-mod ascii_art;
+
 
 pub fn process_img(args: Vec<String>) -> Response {
     let (mut response, file_path, second_op, third_op) = match args_validation(&args) {
@@ -12,14 +12,12 @@ pub fn process_img(args: Vec<String>) -> Response {
         Err(value) => return value,
     };
 
-    let image = Image::from(file_path);
+    let image = ProcessImageObj::from(file_path);
     if second_op == "--cs" {
         response = color_scale::process(third_op, &args, image);
     } else if second_op == "--p" {
         response = pixelate::process(third_op, &args, image);
-    } else if second_op == "--a" {
-        response = ascii_art::process(third_op, &args, image);
-    }
+    } 
 
     if response.succeed {
         response.message = "Image processed and saved.".to_string();

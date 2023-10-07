@@ -2,11 +2,11 @@ use std::ops::ControlFlow;
 
 use super::{utils, save_img};
 use crate::{
-    process_img::{ColorScale, Image},
+    process_img::models::{ColorScale, ProcessImageObj},
     response::Response,
 };
 
-pub fn process(third_op: &str, args: &Vec<String>, mut image: Image) -> Response {
+pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -> Response {
     let mut response = Response::default();
     if third_op == "--gs" || third_op == "--bs" || third_op == "--grs" || third_op == "--rs" {
         let fourth_op: &str = args[5].as_ref();

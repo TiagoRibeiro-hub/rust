@@ -1,15 +1,15 @@
 use image::{GenericImageView, ImageBuffer};
 
-use super::{Image, ImageRgba, utils::open};
+use super::{ProcessImageObj, ImageRgba, utils::open};
 
-pub fn pixelate(image: &Image) -> ImageRgba {
+pub fn pixelate(image: &ProcessImageObj) -> ImageRgba {
     let img = open(&image.path);
     let img_dims = img.dimensions();
     let small_img = resize(
         &img.to_rgba8(),
         (
-            (img_dims.0 / image.dimensions.0),
-            (img_dims.1 / image.dimensions.1),
+            (img_dims.0 / 5), // TODO the value has to come from the user
+            (img_dims.1 / 5), // TODO the value has to come from the user
         ),
     );
     resize(&small_img, img_dims) // pixelate

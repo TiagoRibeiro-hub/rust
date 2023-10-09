@@ -6,7 +6,7 @@ pub type ImageRgba = ImageBuffer<Rgba<u8>, Vec<u8>>;
 pub struct ProcessImageObj {
     pub path: String,
     pub gama: f64,
-    pub scale: ScaleFactor,
+    pub dimensions: ImgDimensions,
 }
 
 impl From<&str> for ProcessImageObj{
@@ -14,7 +14,7 @@ impl From<&str> for ProcessImageObj{
         ProcessImageObj {
             path: path.to_string(),
             gama: 1.0,
-            scale: ScaleFactor { new_dim: (0,0), old_dim: (0,0) }
+            dimensions: ImgDimensions { new_dim: (0,0), old_dim: (0,0) }
         }
      }
 }
@@ -36,26 +36,20 @@ pub enum ReziseForm {
 }
 
 #[derive(Debug, Clone)]
-pub struct ScaleFactor {
+pub struct ImgDimensions {
     pub new_dim:(u32, u32), 
     pub old_dim:(u32, u32),
 }
 
-impl ScaleFactor {
-    pub fn set(&self) -> (u32,u32) {
-        let mut w = self.old_dim.0;
-        let mut h = self.old_dim.1;
-        if self.new_dim.0 > self.old_dim.0 {
-            w = self.new_dim.0 / self.old_dim.0;
+impl ImgDimensions {
+    pub fn scale_factor(&self) -> (f64,f64) {
+        let mut w = self.old_dim.0 as f64 / self.new_dim.0 as f64 ;
+        let mut h = self.old_dim.1 as f64 / self.new_dim.1 as f64 ;
+        if w < 0.0 {
+            w = 0.0;
         }
-        else if self.new_dim.0 < self.old_dim.0 {
-            w = self.old_dim.0 / self.new_dim.0;
-        }
-        if self.new_dim.1 > self.old_dim.1 {
-            h = self.new_dim.1 / self.old_dim.1;
-        }
-        else if self.new_dim.1 < self.old_dim.1 {
-            h = self.old_dim.1 / self.new_dim.1;
+        if h < 0.0 {
+            h = 0.0;
         }
         (w, h)
     }

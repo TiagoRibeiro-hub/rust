@@ -1,20 +1,20 @@
 use image::{ImageBuffer, Rgba};
 
 use crate::process_img::{
-    utils::{gray_scale_operation, open},
+    utils::open,
     ImageRgba, ProcessImageObj,
 };
 
 struct Linear {
-    pub pix_one: Rgba<u8>,
-    pub pix_two: Rgba<u8>,
-    pub original_value: f64,
-    pub floor_value: u32,
-    pub ceil_value: u32,
+    pub p1: Rgba<u8>,
+    pub p2: Rgba<u8>,
+    pub n: f64,
+    pub n1: u32,
+    pub n2: u32,
 }
 
 impl Linear {
-    fn get(&self) -> [u8; 4] {
+    fn rgba(&self) -> [u8; 4] {
         // * red
         let r = self.linear_func(0);
         // * green
@@ -27,27 +27,30 @@ impl Linear {
     }
 
     fn linear_func(&self, index: usize) -> u8 {
-        let q_one = self.pix_one[index] * (self.ceil_value as u32 - self.original_value as u32) as u8;
-        let q_two = self.pix_two[index] * (self.original_value as u32 - self.floor_value as u32) as u8;
-        q_one + q_two
+        // * Q1 = P1 * (n2 - n)
+        let q1 = self.p1[index] * (self.n2 as u32 - self.n as u32) as u8;
+        // * Q2 = P2 * (n - n1)
+        let q2 = self.p2[index] * (self.n as u32 - self.n1 as u32) as u8;
+        // * SQ = P1 + P2
+        q1 + q2
     }
 }
 
 struct Bilinear {
-    pub pix_l: Rgba<u8>,
-    pub pix_l_d: Rgba<u8>,
-    pub pix_r: Rgba<u8>,
-    pub pix_r_d: Rgba<u8>,
-    pub height: f64,
-    pub h_floor: u32,
-    pub h_ceil: u32,
-    pub width: f64,
-    pub w_floor: u32,
-    pub w_ceil: u32,
+    pub q11: Rgba<u8>,
+    pub q12: Rgba<u8>,
+    pub q21: Rgba<u8>,
+    pub q22: Rgba<u8>,
+    pub y: f64,
+    pub y1: u32,
+    pub y2: u32,
+    pub x: f64,
+    pub x1: u32,
+    pub x2: u32,
 }
 
 impl Bilinear {
-    fn get(&self) -> [u8; 4] {
+    fn rgba(&self) -> [u8; 4] {
         // * red
         let r = self.bilinear_func(0);
         // * green
@@ -60,12 +63,16 @@ impl Bilinear {
     }
 
     fn bilinear_func(&self, index: usize) -> u8 {
-        let q_one = self.pix_l[index] as f64 * (self.h_ceil as f64 - self.height)
-            + self.pix_l_d[index] as f64 * (self.height - self.h_floor as f64);
-        let q_two = self.pix_r[index] as f64 * (self.h_ceil as f64 - self.height)
-            + self.pix_r_d[index] as f64 * (self.height - self.h_floor as f64);
-        (q_one * (self.w_ceil as f64 - self.width)
-            + q_two * (self.width - self.w_floor as f64)) as u8
+        // * Stotage Row major => HeightWidht
+        // * Q1 = Q11 * (y2 - y) + Q12 * (y1 -y)
+        let q1 = self.q11[index] as f64 * (self.y2 as f64 - self.y)
+            + self.q12[index] as f64 * (self.y - self.y1 as f64);
+        // * Q2 = Q22 * (y2 - y) + Q22 * (y - y1)
+        let q2 = self.q21[index] as f64 * (self.y2 as f64 - self.y)
+            + self.q22[index] as f64 * (self.y - self.y1 as f64);
+        // * Q = Q1 * (x2 - x) + Q2 * (x - x1)
+        (q1 * (self.x2 as f64 - self.x)
+            + q2 * (self.x - self.x1 as f64)) as u8
     }
 }
 
@@ -84,63 +91,63 @@ pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
     for y in 0..image.dimensions.new_dim.1 {
         for x in 0..image.dimensions.new_dim.0 {
             // * map the coordinates back to the original image
-            let original_h = y as f64 * scale_factor.1;
-            let original_w = x as f64 * scale_factor.0;
+            let original_y = y as f64 * scale_factor.1;
+            let original_x = x as f64 * scale_factor.0;
 
             // * calculate the coordinate values for 4 surrounding pixels.
-            let h_floor = original_h.floor() as u32;
-            let mut h_ceil = original_h.ceil() as u32;
-            if h_ceil > (image.dimensions.old_dim.1) - 1 {
-                h_ceil = (image.dimensions.old_dim.1) - 1
+            let y1 = original_y.floor() as u32;
+            let mut y2 = original_y.ceil() as u32;
+            if y2 > (image.dimensions.old_dim.1) - 1 {
+                y2 = (image.dimensions.old_dim.1) - 1
             }
 
-            let w_floor = original_w.floor() as u32;
-            let mut w_ceil = original_w.ceil() as u32;
-            if w_ceil > (image.dimensions.old_dim.0) - 1 {
-                w_ceil = (image.dimensions.old_dim.0) - 1
+            let x1 = original_x.floor() as u32;
+            let mut x2 = original_x.ceil() as u32;
+            if x2 > (image.dimensions.old_dim.0) - 1 {
+                x2 = (image.dimensions.old_dim.0) - 1
             }
 
             // set pixel
             let pixel: &mut image::Rgba<u8> = new_img.get_pixel_mut(x, y);
             // * if original_h and original_w have integer values q will be always 0
             // * so we use the original pixel
-            if (h_ceil == h_floor) && (w_ceil == w_floor) {
-                *pixel = *old_img.get_pixel(w_floor, h_floor);
-            } else if h_ceil == h_floor {
+            if (y2 == y1) && (x2 == x1) {
+                *pixel = *old_img.get_pixel(x1, y1);
+            } else if y2 == y1 {
                 // * if original_h have integer values we use linear interpolation
                 let linear = Linear {
-                    pix_one: *old_img.get_pixel(w_floor, original_h as u32),
-                    pix_two: *old_img.get_pixel(w_ceil, original_h as u32),
-                    original_value: original_w,
-                    floor_value: w_floor,
-                    ceil_value: w_ceil,
+                    p1: *old_img.get_pixel(x1, original_y as u32),
+                    p2: *old_img.get_pixel(x2, original_y as u32),
+                    n: original_x,
+                    n1: x1,
+                    n2: x2,
                 };
-                *pixel = image::Rgba(linear.get());
+                *pixel = image::Rgba(linear.rgba());
 
-            } else if w_ceil == w_floor {
+            } else if x2 == x1 {
                 // * if original_w have integer values we use linear interpolation
                 let linear = Linear {
-                    pix_one: *old_img.get_pixel(original_w as u32, h_floor),
-                    pix_two: *old_img.get_pixel(original_w as u32, h_ceil),
-                    original_value: original_h,
-                    floor_value: h_floor,
-                    ceil_value: h_ceil,
+                    p1: *old_img.get_pixel(original_x as u32, y1),
+                    p2: *old_img.get_pixel(original_x as u32, y2),
+                    n: original_y,
+                    n1: y1,
+                    n2: y2,
                 };
-                *pixel = image::Rgba(linear.get());
+                *pixel = image::Rgba(linear.rgba());
             } else {
                 let bilinear = Bilinear {
-                    pix_l: *old_img.get_pixel(w_floor, h_floor),
-                    pix_l_d: *old_img.get_pixel(w_floor, h_ceil),
-                    pix_r: *old_img.get_pixel(w_ceil, h_floor),
-                    pix_r_d: *old_img.get_pixel(w_ceil, h_ceil),
-                    height: original_h,
-                    h_floor,
-                    h_ceil,
-                    width: original_w,
-                    w_floor,
-                    w_ceil,
+                    q11: *old_img.get_pixel(x1, y1),
+                    q12: *old_img.get_pixel(x1, y2),
+                    q21: *old_img.get_pixel(x2, y1),
+                    q22: *old_img.get_pixel(x2, y2),
+                    y: original_y,
+                    y1,
+                    y2,
+                    x: original_x,
+                    x1,
+                    x2,
                 };
-                *pixel = image::Rgba(bilinear.get());
+                *pixel = image::Rgba(bilinear.rgba());
             }
         }
     }

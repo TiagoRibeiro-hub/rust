@@ -4,7 +4,7 @@ use super::utils;
 use crate::{process_img::models::ProcessImageObj, response::Response};
 mod color_scale;
 mod pixelate;
-
+mod resize;
 
 pub fn process_img(args: Vec<String>) -> Response {
     let (mut response, file_path, second_op, third_op) = match args_validation(&args) {
@@ -17,12 +17,13 @@ pub fn process_img(args: Vec<String>) -> Response {
         response = color_scale::process(third_op, &args, image);
     } else if second_op == "--p" {
         response = pixelate::process(third_op, &args, image);
-    } 
+    } else if second_op == "--r" {
+        response = resize::process(third_op, &args, image);
+    }
 
     if response.succeed {
         response.message = "Image processed and saved.".to_string();
-    }
-    else {
+    } else {
         response.message = "Unable to save image".to_string();
     }
 
@@ -40,18 +41,12 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
         return Err(response);
     }
     let second_op: &str = args[3].as_ref();
-    if second_op != "--cs" && second_op != "--p" && second_op != "--a" {
+    if ["--cs", "--p", "--r"].contains(&second_op) {
         response.message = format!("'{}' is not a known parameter for this position", second_op);
         return Err(response);
     }
     let third_op: &str = args[4].as_ref();
-    if third_op != "--o"
-        && third_op != "--gs"
-        && third_op != "--bs"
-        && third_op != "--grs"
-        && third_op != "--rs"
-        && third_op != "--D"
-    {
+    if ["--o", "--gs", "--bs", "--grs", "--rs", "--b", "--c"].contains(&third_op) {
         response.message = format!("'{}' is not a known parameter for this position", third_op);
         return Err(response);
     }
@@ -61,11 +56,7 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
 fn save_img(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, save_path: String) -> bool {
     let saved = img.save(save_path);
     match saved {
-        Ok(_) => {
-            true
-        }
-        Err(_) => {
-            false
-        }
+        Ok(_) => true,
+        Err(_) => false,
     }
 }

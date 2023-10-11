@@ -10,7 +10,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
     let mut response = Response::default();
     if third_op == "--gs" || third_op == "--bs" || third_op == "--grs" || third_op == "--rs" {
         let fourth_op: &str = args[5].as_ref();
-        if fourth_op == "--G" {
+        if fourth_op == "--g" {
             let gama_str: &str = args[6].as_ref();
             let gama_parse_res = gama_str.parse::<f64>();
             match gama_parse_res {

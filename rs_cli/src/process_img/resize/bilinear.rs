@@ -5,7 +5,7 @@ use crate::process_img::{
     ImageRgba, ProcessImageObj,
 };
 
-struct Linear {
+pub struct Linear {
     pub p1: Rgba<u8>,
     pub p2: Rgba<u8>,
     pub n: f64,
@@ -14,7 +14,7 @@ struct Linear {
 }
 
 impl Linear {
-    fn rgba(&self) -> [u8; 4] {
+    pub fn rgba(&self) -> [u8; 4] {
         // * red
         let r = self.linear_func(0);
         // * green
@@ -36,7 +36,7 @@ impl Linear {
     }
 }
 
-struct Bilinear {
+pub struct Bilinear {
     pub q11: Rgba<u8>,
     pub q12: Rgba<u8>,
     pub q21: Rgba<u8>,
@@ -50,7 +50,7 @@ struct Bilinear {
 }
 
 impl Bilinear {
-    fn rgba(&self) -> [u8; 4] {
+    pub fn rgba(&self) -> [u8; 4] {
         // * red
         let r = self.bilinear_func(0);
         // * green
@@ -63,7 +63,7 @@ impl Bilinear {
     }
 
     fn bilinear_func(&self, index: usize) -> u8 {
-        // * Stotage Row major => HeightWidht
+        // * Row major => HeightWidht
         // * Q1 = Q11 * (y2 - y) + Q12 * (y1 -y)
         let q1 = self.q11[index] as f64 * (self.y2 as f64 - self.y)
             + self.q12[index] as f64 * (self.y - self.y1 as f64);
@@ -90,9 +90,9 @@ pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
 
     for y in 0..image.dimensions.new_dim.1 {
         for x in 0..image.dimensions.new_dim.0 {
-            // * map the coordinates back to the original image
-            let original_y = y as f64 * scale_factor.1;
-            let original_x = x as f64 * scale_factor.0;
+            // * map the coordinates back to the original image, also need to offset by half a pixel to keep image from shifting down and left half a pixel
+            let original_y = y as f64 * scale_factor.1 - 0.5;
+            let original_x = x as f64 * scale_factor.0 - 0.5;
 
             // * calculate the coordinate values for 4 surrounding pixels.
             let y1 = original_y.floor() as u32;
@@ -109,8 +109,7 @@ pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
 
             // set pixel
             let pixel: &mut image::Rgba<u8> = new_img.get_pixel_mut(x, y);
-            // * if original_h and original_w have integer values q will be always 0
-            // * so we use the original pixel
+            // * if original_h and original_w have integer values q will be always 0, so we use the original pixel
             if (y2 == y1) && (x2 == x1) {
                 *pixel = *old_img.get_pixel(x1, y1);
             } else if y2 == y1 {

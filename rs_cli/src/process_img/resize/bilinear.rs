@@ -30,9 +30,9 @@ impl Linear {
 
     fn linear_func(&self, index: usize) -> u8 {
         // * Q1 = P1 * (n2 - n)
-        let q1 = self.p1[index] * (self.n2 as u32 - self.n as u32) as u8;
+        let q1 = self.p1[index] * (self.n2 - self.n as u32) as u8;
         // * Q2 = P2 * (n - n1)
-        let q2 = self.p2[index] * (self.n as u32 - self.n1 as u32) as u8;
+        let q2 = self.p2[index] * (self.n as u32 - self.n1) as u8;
         // * SQ = P1 + P2
         q1 + q2
     }

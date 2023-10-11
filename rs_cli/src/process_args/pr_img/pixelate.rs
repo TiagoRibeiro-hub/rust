@@ -1,12 +1,12 @@
 use crate::{
-    global::str_utils, process_args::utils, process_img::models::ProcessImageObj,
+    process_args::utils, process_img::models::ProcessImageObj,
     response::Response,
 };
 use std::ops::ControlFlow;
 
 use super::save_img;
 
-pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -> Response {
+pub fn process(third_op: &str, args: &Vec<String>, image: ProcessImageObj) -> Response {
     let mut response = Response::default();
     if third_op != "--o" {
         //* third_op must be --o

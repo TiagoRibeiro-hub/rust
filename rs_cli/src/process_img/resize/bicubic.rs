@@ -54,8 +54,8 @@ impl Bicubic {
         // d = p1
         let d = p1;
      
-        //     (a)x^3  + (b)x^2 + (c)x + d
-        return a*t*t*t + b*t*t + c*t + d;
+    //  (a)x^3  + (b)x^2 + (c)x + d
+        a*t*t*t + b*t*t + c*t + d
     }
 }
 
@@ -120,8 +120,8 @@ pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
                 q13: *old_img.get_pixel(x1, y3),
                 q23: *old_img.get_pixel(x2, y3),
                 q33: *old_img.get_pixel(x3, y3),
-                fract_y: fract_y,
-                fract_x: fract_x
+                fract_y,
+                fract_x
             }; 
             *pixel = Rgba(bicubic.rgba());
         }

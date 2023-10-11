@@ -9,7 +9,7 @@ use super::save_img;
 
 pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -> Response {
     let mut response = Response::default();
-    if let ControlFlow::Break(_) = utils::check_min_parameters(&args, &mut response, 9) {
+    if let ControlFlow::Break(_) = utils::check_min_parameters(args, &mut response, 9) {
         return response;
     }
     if third_op == "--b" || third_op == "--c" {

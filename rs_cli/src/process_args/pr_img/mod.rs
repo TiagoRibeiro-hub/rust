@@ -55,7 +55,7 @@ fn save_img(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, save_path: String
             response.message = "Image processed and saved.".to_string();
             response.succeed = true;
         },
-        Err(e) => {
+        Err(_) => {
             response.message = "Unable to save image.".to_string();
         }
     }

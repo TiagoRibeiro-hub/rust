@@ -24,7 +24,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
                     let height_parse_res = height_str.parse::<u32>();
                     match height_parse_res {
                         Ok(height) => {
-                            image.dimensions.new_dim = (width, height);
+                            image.dimensions = (width, height);
                         }
                         Err(_) => {
                             response.message = "Invalid value for height".to_string();

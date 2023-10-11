@@ -6,7 +6,7 @@ pub type ImageRgba = ImageBuffer<Rgba<u8>, Vec<u8>>;
 pub struct ProcessImageObj {
     pub path: String,
     pub gama: f64,
-    pub dimensions: ImgDimensions,
+    pub dimensions: (u32, u32),
 }
 
 impl From<&str> for ProcessImageObj{
@@ -14,7 +14,7 @@ impl From<&str> for ProcessImageObj{
         ProcessImageObj {
             path: path.to_string(),
             gama: 1.0,
-            dimensions: ImgDimensions { new_dim: (0,0), old_dim: (0,0) }
+            dimensions: (0,0)
         }
      }
 }
@@ -35,7 +35,7 @@ pub enum ResizeForm {
     Bicubic(),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ImgDimensions {
     pub new_dim:(u32, u32), 
     pub old_dim:(u32, u32),

@@ -32,10 +32,10 @@ impl ProcessImageObj {
     pub fn resize(&self, reziseform: ResizeForm) -> ImageRgba {
         match reziseform {
             ResizeForm::Bilinear() => {
-                resize::bilinear::resize(self.clone())
+                resize::bilinear::resize(self)
             },
             ResizeForm::Bicubic() => {
-                resize::bicubic::resize(self.clone())
+                resize::bicubic::resize(self)
             },
         }
     }

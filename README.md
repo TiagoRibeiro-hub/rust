@@ -32,5 +32,5 @@
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/" --n blue_scale
     
     - resize => --img "../imgs/chestnut_tailed_starling.jpg" --r --b --d 1000,796 --o "../imgs/"
-    - resize => --img "../imgs/chestnut_tailed_starling.jpg" --r --b --o "../imgs/" --n teste
+    - resize => --img "../imgs/chestnut_tailed_starling.jpg" --r --b --d 1200,496 --o "../imgs/" --n teste
  

@@ -2,7 +2,7 @@ use std::cmp;
 
 use image::{Rgba, ImageBuffer};
 
-use crate::process_img::{ProcessImageObj, ImageRgba, utils::open};
+use crate::process_img::{ProcessImageObj, ImageRgba, utils::open, models::ImgDimensions};
 
 struct Bicubic {
     // 1st row
@@ -61,42 +61,41 @@ impl Bicubic {
 
 
 #[allow(unused_variables, dead_code, unused_assignments)]
-pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
+pub fn resize(image: &ProcessImageObj) -> ImageRgba {
     let img = open(&image.path);
     let old_img = img.to_rgba8();
 
     // * Dimensions
-    let new_dim = image.dimensions.new_dim;
-    image.dimensions.old_dim = old_img.dimensions();
-    let scale_factor = image.dimensions.scale_factor();
+    let dimensions = ImgDimensions { new_dim: image.dimensions, old_dim: old_img.dimensions() };
+    let scale_factor = dimensions.scale_factor();
 
-    let mut new_img: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(new_dim.0, new_dim.1);
+    let mut new_img: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(dimensions.new_dim.0, dimensions.new_dim.1);
 
-    for y in 0..image.dimensions.new_dim.1 {
-        for x in 0..image.dimensions.new_dim.0 {
+    for y in 0..dimensions.new_dim.1 {
+        for x in 0..dimensions.new_dim.0 {
             // * map the coordinates back to the original image, also need to offset by half a pixel to keep image from shifting down and left half a pixel
             let original_y = y as f64 * scale_factor.1 - 0.5;
             let original_x = x as f64 * scale_factor.0 - 0.5;
 
             // * calculate the coordinate values for 8 surrounding pixels.
             let y1 = original_y.floor() as u32;
-            let y2 = cmp::min(original_y.ceil() as u32, (image.dimensions.old_dim.1) - 1);
+            let y2 = cmp::min(original_y.ceil() as u32, (dimensions.old_dim.1) - 1);
 
             let mut y0 = 0;
             if y1 >= 1 {
                 y0 = y1 - 1; 
             }
-            let y3 = cmp::min(y2 + 1, (image.dimensions.old_dim.1) - 1);
+            let y3 = cmp::min(y2 + 1, (dimensions.old_dim.1) - 1);
 
 
             let x1 = original_x.floor() as u32;    
-            let x2 = cmp::min(original_x.ceil() as u32, (image.dimensions.old_dim.0) - 1);
+            let x2 = cmp::min(original_x.ceil() as u32, (dimensions.old_dim.0) - 1);
 
             let mut x0 = 0;
             if x1 >= 1 {
                 x0 = x1 - 1; 
             }
-            let x3 = cmp::min(x2 + 1, (image.dimensions.old_dim.0) - 1);
+            let x3 = cmp::min(x2 + 1, (dimensions.old_dim.0) - 1);
 
             let fract_y = original_y - original_y.floor();
             let fract_x = original_x - original_x.floor();
@@ -136,12 +135,11 @@ fn bicubic() {
     let mut image =
         ProcessImageObj::from("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling.jpg");
     // ! Up scaling
-    let mut img_clone = image.clone();
-    img_clone.dimensions.new_dim = (1000, 796);
-    let result = resize(img_clone);
+    image.dimensions = (1000, 796);
+    let result = resize(&image);
     let _ = result.save("/home/tiago/rust/projects/cli/imgs/resize_bicubic_up_scaling.png");
     // ! Down scaling
-    image.dimensions.new_dim = (350, 296);
-    let result = resize(image);
+    image.dimensions = (350, 296);
+    let result = resize(&image);
     let _ = result.save("/home/tiago/rust/projects/cli/imgs/resize_bicubic_down_scaling.png");
 }

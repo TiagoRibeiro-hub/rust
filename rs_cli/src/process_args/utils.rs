@@ -3,13 +3,25 @@ use crate::response::Response;
 use super::{calc, pr_img};
 
 
-pub fn check_parameters(
+pub fn check_max_parameters(
     args: &Vec<String>,
     response: &mut Response,
     nr_args: usize,
 ) -> ControlFlow<()> {
     if args.len() > nr_args {
         response.message = "Too many parameters".to_string();
+        return ControlFlow::Break(());
+    }
+    ControlFlow::Continue(())
+}
+
+pub fn check_min_parameters(
+    args: &Vec<String>,
+    response: &mut Response,
+    nr_args: usize,
+) -> ControlFlow<()> {
+    if args.len() < nr_args {
+        response.message = format!("Must have at least {} args", nr_args);
         return ControlFlow::Break(());
     }
     ControlFlow::Continue(())

@@ -30,7 +30,7 @@ impl ColorScale {
         ColorScale::Gray()
     }
 }
-pub enum ReziseForm {
+pub enum ResizeForm {
     Bilinear(),
     Bicubic(),
 }

@@ -15,8 +15,6 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
     }
     let pixelate_img = image.pixelate();
 
-    let mut save_path: String = String::default();
-
     let arg_op = third_op;
     let arg_param = args[5].as_ref();
 
@@ -28,6 +26,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
         }
     }
 
+    let mut save_path: String = String::default();
     if let ControlFlow::Break(_) =
         utils::file_path_output_is_empty(arg_op, arg_param, &mut response, &mut save_path)
     {
@@ -41,6 +40,6 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
         save_path += ".png";
     }
 
-    response.succeed = save_img(pixelate_img, save_path);
+    save_img(pixelate_img, save_path, &mut response);
     response
 }

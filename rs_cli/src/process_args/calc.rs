@@ -6,7 +6,7 @@ use super::utils;
 
 pub fn calculator(args: Vec<String>) -> Response {
     let mut response = Response::default();
-    if let ControlFlow::Break(_) = utils::check_parameters(&args, &mut response, 4) {
+    if let ControlFlow::Break(_) = utils::check_max_parameters(&args, &mut response, 4) {
         return response;
     }
     let expr: &str = args[2].as_ref();

@@ -8,6 +8,9 @@ use crate::{
 
 pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -> Response {
     let mut response = Response::default();
+    if let ControlFlow::Break(_) = utils::check_min_parameters(&args, &mut response, 9) {
+        return response;
+    }
     if third_op == "--gs" || third_op == "--bs" || third_op == "--grs" || third_op == "--rs" {
         let fourth_op: &str = args[5].as_ref();
         if fourth_op == "--g" {
@@ -74,7 +77,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
             save_path += file_name; // TODO remove possible extension
             save_path += ".png";
         }
-        response.succeed = save_img(gray_img, save_path);
+        save_img(gray_img, save_path, &mut response);
     } else {
         //* third_op must be --gs || --bs || --grs || --rs
         response.message = format!("'{}' is not a known parameter for this position", third_op);

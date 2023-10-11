@@ -29,12 +29,12 @@ impl ProcessImageObj {
         pixelate::pixelate(self)
     }
 
-    pub fn resize(&self, reziseform: ReziseForm) -> ImageRgba {
+    pub fn resize(&self, reziseform: ResizeForm) -> ImageRgba {
         match reziseform {
-            ReziseForm::Bilinear() => {
+            ResizeForm::Bilinear() => {
                 resize::bilinear::resize(self.clone())
             },
-            ReziseForm::Bicubic() => {
+            ResizeForm::Bicubic() => {
                 resize::bicubic::resize(self.clone())
             },
         }

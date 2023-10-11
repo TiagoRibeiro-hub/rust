@@ -1,4 +1,4 @@
-use std::env::args;
+use std::{env::args, ops::ControlFlow};
 use crate::response::Response;
 
 mod utils;
@@ -9,8 +9,7 @@ pub fn process_args() -> Response {
     let args: Vec<String> = args().collect();
     let mut response = Response::default();
     
-    if args.len() < 3 {
-        response.message = "Must have at least 2 args".to_string();
+    if let ControlFlow::Break(_) = utils::check_min_parameters(&args, &mut response, 3) {
         return response;
     }
 

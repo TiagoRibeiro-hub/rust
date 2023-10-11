@@ -1,3 +1,5 @@
+use std::cmp;
+
 use image::{ImageBuffer, Rgba};
 
 use crate::process_img::{
@@ -96,16 +98,10 @@ pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
 
             // * calculate the coordinate values for 4 surrounding pixels.
             let y1 = original_y.floor() as u32;
-            let mut y2 = original_y.ceil() as u32;
-            if y2 > (image.dimensions.old_dim.1) - 1 {
-                y2 = (image.dimensions.old_dim.1) - 1
-            }
+            let y2 = cmp::min(original_y.ceil() as u32, (image.dimensions.old_dim.1) - 1);
 
             let x1 = original_x.floor() as u32;
-            let mut x2 = original_x.ceil() as u32;
-            if x2 > (image.dimensions.old_dim.0) - 1 {
-                x2 = (image.dimensions.old_dim.0) - 1
-            }
+            let x2 = cmp::min(original_x.ceil() as u32, (image.dimensions.old_dim.0) - 1);
 
             // set pixel
             let pixel: &mut image::Rgba<u8> = new_img.get_pixel_mut(x, y);

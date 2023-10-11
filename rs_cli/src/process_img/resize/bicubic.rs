@@ -1,3 +1,5 @@
+use std::cmp;
+
 use image::{Rgba, ImageBuffer};
 
 use crate::process_img::{ProcessImageObj, ImageRgba, utils::open};
@@ -35,26 +37,24 @@ impl Bicubic {
             let col1 = Bicubic::bicubic_func(self.q01[i] as f64, self.q11[i] as f64, self.q21[i] as f64, self.q31[i] as f64, self.fract_x);
             let col2 = Bicubic::bicubic_func(self.q02[i] as f64, self.q12[i] as f64, self.q22[i] as f64, self.q32[i] as f64, self.fract_x);
             let col3 = Bicubic::bicubic_func(self.q03[i] as f64, self.q13[i] as f64, self.q23[i] as f64, self.q33[i] as f64, self.fract_x);
-            let mut color = Bicubic::bicubic_func(col0, col1, col2, col3, self.fract_y);
-            if color > 255.0 {
-                color = 255.0
-            }
-            if color < 0.0
-            {
-                color = 0.0;
-            }
-            rgba[i] = color as u8;
+            let color = Bicubic::bicubic_func(col0, col1, col2, col3, self.fract_y);
+            rgba[i] = color.clamp(0.0, 255.0) as u8;
         }
         rgba
     }
 
     fn bicubic_func(p0: f64, p1: f64, p2: f64, p3: f64, t: f64) -> f64
     {
+        // a =  -frac{1}{2}p0  + frac{3}{2}p1     - frac{3}{2}p2     + frac{1}{2}p3
         let a = -p0 / 2.0 + (3.0 * p1) / 2.0 - (3.0 * p2) / 2.0 + p3 / 2.0;
+        // b =       p0 - frac{5}{2}p1     + 2p  * 2  - frac{1}{2}p3
         let b = p0 - (5.0 * p1) / 2.0 + 2.0 * p2 - p3 / 2.0;
+        // c =  -frac{1}{2}p0  +  frac{1}{2}p2
         let c = -p0 / 2.0 + p2 / 2.0;
+        // d = p1
         let d = p1;
      
+        //     (a)x^3  + (b)x^2 + (c)x + d
         return a*t*t*t + b*t*t + c*t + d;
     }
 }
@@ -80,36 +80,23 @@ pub fn resize(mut image: ProcessImageObj) -> ImageRgba {
 
             // * calculate the coordinate values for 8 surrounding pixels.
             let y1 = original_y.floor() as u32;
-            let mut y2 = original_y.ceil() as u32;
-            if y2 > (image.dimensions.old_dim.1) - 1 {
-                y2 = (image.dimensions.old_dim.1) - 1
-            }
+            let y2 = cmp::min(original_y.ceil() as u32, (image.dimensions.old_dim.1) - 1);
 
             let mut y0 = 0;
             if y1 >= 1 {
                 y0 = y1 - 1; 
             }
+            let y3 = cmp::min(y2 + 1, (image.dimensions.old_dim.1) - 1);
 
-            let mut y3 = y2 + 1;
-            if y3 > (image.dimensions.old_dim.1) - 1 {
-                y3 = (image.dimensions.old_dim.1) - 1
-            }
 
-            let x1 = original_x.floor() as u32;
-            let mut x2 = original_x.ceil() as u32;
-            if x2 > (image.dimensions.old_dim.0) - 1 {
-                x2 = (image.dimensions.old_dim.0) - 1
-            }
+            let x1 = original_x.floor() as u32;    
+            let x2 = cmp::min(original_x.ceil() as u32, (image.dimensions.old_dim.0) - 1);
 
             let mut x0 = 0;
             if x1 >= 1 {
                 x0 = x1 - 1; 
             }
-
-            let mut x3 = x2 + 1;
-            if x3 > (image.dimensions.old_dim.0) - 1 {
-                x3 = (image.dimensions.old_dim.0) - 1
-            }
+            let x3 = cmp::min(x2 + 1, (image.dimensions.old_dim.0) - 1);
 
             let fract_y = original_y - original_y.floor();
             let fract_x = original_x - original_x.floor();

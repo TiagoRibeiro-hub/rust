@@ -1,9 +1,6 @@
-use std::cmp;
-
-use image::{ImageBuffer, Rgba};
+use image::Rgba;
 
 use crate::process_img::{
-    utils::open,
     ImageRgba, ProcessImageObj, models::ImgDimensions,
 };
 
@@ -80,27 +77,15 @@ impl Bilinear {
 
 #[allow(unused_variables, dead_code)]
 pub fn resize(image: &ProcessImageObj) -> ImageRgba {
-    let img = open(&image.path);
-    let old_img = img.to_rgba8();
-
-    // * Dimensions
-    let dimensions = ImgDimensions { new_dim: image.dimensions, old_dim: old_img.dimensions() };
-    let scale_factor = dimensions.scale_factor();
-
-    let mut new_img: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(dimensions.new_dim.0, dimensions.new_dim.1);
+    let (old_img, dimensions, scale_factor, mut new_img) = image.set_props_for_processing();
 
     for y in 0..dimensions.new_dim.1 {
         for x in 0..dimensions.new_dim.0 {
             // * map the coordinates back to the original image, also need to offset by half a pixel to keep image from shifting down and left half a pixel
-            let original_y = y as f64 * scale_factor.1 - 0.5;
-            let original_x = x as f64 * scale_factor.0 - 0.5;
+            let (original_y, original_x) = ImgDimensions::map_original_coordinates(y, x, scale_factor);
 
             // * calculate the coordinate values for 4 surrounding pixels.
-            let y1 = original_y.floor() as u32;
-            let y2 = cmp::min(original_y.ceil() as u32, (dimensions.old_dim.1) - 1);
-
-            let x1 = original_x.floor() as u32;
-            let x2 = cmp::min(original_x.ceil() as u32, (dimensions.old_dim.0) - 1);
+            let (y1, y2, x1, x2) = dimensions.map_surrounding_coordinates(original_y, original_x);
 
             // set pixel
             let pixel: &mut image::Rgba<u8> = new_img.get_pixel_mut(x, y);
@@ -148,6 +133,8 @@ pub fn resize(image: &ProcessImageObj) -> ImageRgba {
 
     new_img
 }
+
+
 
 
 #[test]

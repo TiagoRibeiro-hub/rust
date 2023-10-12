@@ -4,6 +4,7 @@ mod utils;
 mod color_scale;
 mod pixelate;
 mod resize;
+mod filter;
 pub mod models;
 
 impl ProcessImageObj {
@@ -38,5 +39,9 @@ impl ProcessImageObj {
                 resize::bicubic::resize(self)
             },
         }
+    }
+
+    pub fn filter(&self) -> ImageRgba {
+        filter::blur::gaussian(self)
     }
 }

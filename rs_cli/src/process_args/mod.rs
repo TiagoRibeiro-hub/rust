@@ -22,10 +22,10 @@ pub fn process_args() -> Response {
                 response = utils::process_img(args);
             }
             else{
-                response.message = format!("There is no operation '{}'", op);
+                response.message = format!("There is not an operation '{}'", op);
             };
         }
-        None =>  response.message = "No parameters allowed".to_string(),
+        None =>  response.message = "There is no operation".to_string(),
     }
 
     response

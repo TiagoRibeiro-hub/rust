@@ -1,12 +1,10 @@
-use std::cmp;
+use image::Rgba;
 
-use image::{Rgba, ImageBuffer};
-
-use crate::process_img::{ProcessImageObj, ImageRgba, utils::open, models::ImgDimensions};
+use crate::process_img::{ImageRgba, ProcessImageObj, models::ImgDimensions};
 
 struct Bicubic {
     // 1st row
-    q00: Rgba<u8>, 
+    q00: Rgba<u8>,
     q10: Rgba<u8>,
     q20: Rgba<u8>,
     q30: Rgba<u8>,
@@ -33,18 +31,41 @@ impl Bicubic {
     pub fn rgba(&self) -> [u8; 4] {
         let mut rgba: [u8; 4] = [0; 4];
         for i in 0..4 {
-            let col0 = Bicubic::bicubic_func(self.q00[i] as f64, self.q10[i] as f64, self.q20[i] as f64, self.q30[i] as f64, self.fract_x);
-            let col1 = Bicubic::bicubic_func(self.q01[i] as f64, self.q11[i] as f64, self.q21[i] as f64, self.q31[i] as f64, self.fract_x);
-            let col2 = Bicubic::bicubic_func(self.q02[i] as f64, self.q12[i] as f64, self.q22[i] as f64, self.q32[i] as f64, self.fract_x);
-            let col3 = Bicubic::bicubic_func(self.q03[i] as f64, self.q13[i] as f64, self.q23[i] as f64, self.q33[i] as f64, self.fract_x);
+            let col0 = Bicubic::bicubic_func(
+                self.q00[i] as f64,
+                self.q10[i] as f64,
+                self.q20[i] as f64,
+                self.q30[i] as f64,
+                self.fract_x,
+            );
+            let col1 = Bicubic::bicubic_func(
+                self.q01[i] as f64,
+                self.q11[i] as f64,
+                self.q21[i] as f64,
+                self.q31[i] as f64,
+                self.fract_x,
+            );
+            let col2 = Bicubic::bicubic_func(
+                self.q02[i] as f64,
+                self.q12[i] as f64,
+                self.q22[i] as f64,
+                self.q32[i] as f64,
+                self.fract_x,
+            );
+            let col3 = Bicubic::bicubic_func(
+                self.q03[i] as f64,
+                self.q13[i] as f64,
+                self.q23[i] as f64,
+                self.q33[i] as f64,
+                self.fract_x,
+            );
             let color = Bicubic::bicubic_func(col0, col1, col2, col3, self.fract_y);
             rgba[i] = color.clamp(0.0, 255.0) as u8;
         }
         rgba
     }
 
-    fn bicubic_func(p0: f64, p1: f64, p2: f64, p3: f64, t: f64) -> f64
-    {
+    fn bicubic_func(p0: f64, p1: f64, p2: f64, p3: f64, t: f64) -> f64 {
         // a =  -frac{1}{2}p0  + frac{3}{2}p1     - frac{3}{2}p2     + frac{1}{2}p3
         let a = -p0 / 2.0 + (3.0 * p1) / 2.0 - (3.0 * p2) / 2.0 + p3 / 2.0;
         // b =       p0 - frac{5}{2}p1     + 2p  * 2  - frac{1}{2}p3
@@ -53,53 +74,30 @@ impl Bicubic {
         let c = -p0 / 2.0 + p2 / 2.0;
         // d = p1
         let d = p1;
-     
-    //  (a)x^3  + (b)x^2 + (c)x + d
-        a*t*t*t + b*t*t + c*t + d
+
+        //  (a)x^3  + (b)x^2 + (c)x + d
+        a * t.powf(3.0) + b * t.powf(2.0) + c * t + d
     }
 }
 
-
 #[allow(unused_variables, dead_code, unused_assignments)]
 pub fn resize(image: &ProcessImageObj) -> ImageRgba {
-    let img = open(&image.path);
-    let old_img = img.to_rgba8();
-
-    // * Dimensions
-    let dimensions = ImgDimensions { new_dim: image.dimensions, old_dim: old_img.dimensions() };
-    let scale_factor = dimensions.scale_factor();
-
-    let mut new_img: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(dimensions.new_dim.0, dimensions.new_dim.1);
+    let (old_img, dimensions, scale_factor, mut new_img) = image.set_props_for_processing();
 
     for y in 0..dimensions.new_dim.1 {
         for x in 0..dimensions.new_dim.0 {
             // * map the coordinates back to the original image, also need to offset by half a pixel to keep image from shifting down and left half a pixel
-            let original_y = y as f64 * scale_factor.1 - 0.5;
-            let original_x = x as f64 * scale_factor.0 - 0.5;
+            let (original_y, original_x) = ImgDimensions::map_original_coordinates(y, x, scale_factor);
 
             // * calculate the coordinate values for 8 surrounding pixels.
-            let y1 = original_y.floor() as u32;
-            let y2 = cmp::min(original_y.ceil() as u32, (dimensions.old_dim.1) - 1);
+            let (y1, y2, x1, x2) = dimensions.map_surrounding_coordinates(original_y, original_x);
 
-            let mut y0 = 0;
-            if y1 >= 1 {
-                y0 = y1 - 1; 
-            }
-            let y3 = cmp::min(y2 + 1, (dimensions.old_dim.1) - 1);
-
-
-            let x1 = original_x.floor() as u32;    
-            let x2 = cmp::min(original_x.ceil() as u32, (dimensions.old_dim.0) - 1);
-
-            let mut x0 = 0;
-            if x1 >= 1 {
-                x0 = x1 - 1; 
-            }
-            let x3 = cmp::min(x2 + 1, (dimensions.old_dim.0) - 1);
+            let (y0, y3) = dimensions.map_edge_coordinates(y1, y2, (dimensions.old_dim.1) - 1);
+            let (x0, x3) = dimensions.map_edge_coordinates(x1, x2, (dimensions.old_dim.0) - 1);
 
             let fract_y = original_y - original_y.floor();
             let fract_x = original_x - original_x.floor();
-            
+
             let pixel: &mut image::Rgba<u8> = new_img.get_pixel_mut(x, y);
 
             let bicubic = Bicubic {
@@ -120,13 +118,16 @@ pub fn resize(image: &ProcessImageObj) -> ImageRgba {
                 q23: *old_img.get_pixel(x2, y3),
                 q33: *old_img.get_pixel(x3, y3),
                 fract_y,
-                fract_x
-            }; 
+                fract_x,
+            };
             *pixel = Rgba(bicubic.rgba());
         }
     }
     new_img
 }
+
+
+
 
 
 #[test]

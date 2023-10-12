@@ -36,13 +36,13 @@ pub fn file_path_output_is_empty(
     if arg == "--o" {
         let path: &str = arg_value;
         if path.is_empty() {
-            response.message = "File path output is empty".to_string();
+            response.message = "Path output is empty".to_string();
             return ControlFlow::Break(());
         }
         *save_path = path.to_string();
     }
     else {
-        response.message = format!("'{}' is not a known parameter for output", arg);
+        response.message = format!("'{}' is not a known parameter for output. Use --o [path]", arg);
         return ControlFlow::Break(());
     }
     ControlFlow::Continue(())

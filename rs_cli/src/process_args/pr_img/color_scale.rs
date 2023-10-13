@@ -2,7 +2,7 @@ use std::ops::ControlFlow;
 
 use super::{utils, save_img};
 use crate::{
-    process_img::models::{ColorScale, ProcessImageObj},
+    process_img::{models::ColorScale, ProcessImageObj},
     response::Response,
 };
 

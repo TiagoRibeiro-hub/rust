@@ -1,5 +1,5 @@
 use crate::{
-    process_args::utils, process_img::models::ProcessImageObj,
+    process_args::utils, process_img::ProcessImageObj,
     response::Response,
 };
 use std::ops::ControlFlow;

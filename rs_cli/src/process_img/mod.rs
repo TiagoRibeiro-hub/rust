@@ -1,4 +1,4 @@
-use self::models::*;
+use self::models::{ColorScale, ImageRgba, ResizeForm};
 
 mod utils;
 mod color_scale;
@@ -6,6 +6,23 @@ mod pixelate;
 mod resize;
 mod filter;
 pub mod models;
+
+#[derive(Debug, Clone)]
+pub struct ProcessImageObj {
+    pub path: String,
+    pub gama: f64,
+    pub dimensions: (u32, u32),
+}
+
+impl From<&str> for ProcessImageObj {
+    fn from(path: &str) -> Self {
+        ProcessImageObj {
+            path: path.to_string(),
+            gama: 1.0,
+            dimensions: (0, 0),
+        }
+    }
+}
 
 impl ProcessImageObj {
     pub fn color_scale(&self, color: ColorScale) -> ImageRgba {
@@ -42,6 +59,6 @@ impl ProcessImageObj {
     }
 
     pub fn filter(&self) -> ImageRgba {
-        filter::blur::gaussian(self)
+        filter::blur::box_fn(self)
     }
 }

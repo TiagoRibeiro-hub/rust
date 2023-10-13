@@ -1,5 +1,7 @@
-use super::*;
-use image::{DynamicImage, ImageBuffer, Rgba};
+use image::{DynamicImage, Rgba, ImageBuffer};
+
+use super::{ProcessImageObj, resize::ImgDimensions};
+
 
 pub fn open(path: &String) -> DynamicImage {
     image::open(path).expect("File not found!")
@@ -29,3 +31,36 @@ pub fn set_buffer_to_rgba8(image: &ProcessImageObj) -> (DynamicImage, ImageBuffe
     (img, img_buffer)
 }
 
+pub fn set_props_for_resize_to_rgba8(image: &ProcessImageObj) -> (
+    ImageBuffer<Rgba<u8>, Vec<u8>>,
+    ImgDimensions,
+    (f64, f64),
+    ImageBuffer<Rgba<u8>, Vec<u8>>,
+) {
+    let img = open(&image.path);
+    let old_img = img.to_rgba8();
+
+    // * Dimensions
+    let dimensions = ImgDimensions {
+        new_dim: image.dimensions,
+        old_dim: old_img.dimensions(),
+    };
+    let scale_factor = dimensions.scale_factor();
+
+    let new_img: ImageBuffer<Rgba<u8>, Vec<u8>> =
+        ImageBuffer::new(dimensions.new_dim.0, dimensions.new_dim.1);
+    (old_img, dimensions, scale_factor, new_img)
+}
+
+pub fn set_buffer_and_dimensions_to_rgba8(image: &ProcessImageObj) -> (
+    ImageBuffer<Rgba<u8>, Vec<u8>>,
+    (u32, u32),
+    ImageBuffer<Rgba<u8>, Vec<u8>>,
+) {
+    let img = open(&image.path);
+    let old_img = img.to_rgba8();
+    let dimensions = old_img.dimensions();
+    let new_img: ImageBuffer<Rgba<u8>, Vec<u8>> =
+        ImageBuffer::new(dimensions.0, dimensions.1);
+    (old_img, dimensions, new_img)
+}

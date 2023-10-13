@@ -1,7 +1,7 @@
 use std::ops::ControlFlow;
 
 use crate::{
-    global::str_utils::slice_string, process_args::utils, process_img::models::{ProcessImageObj, ResizeForm},
+    global::str_utils::slice_string, process_args::utils, process_img::{models::ResizeForm, ProcessImageObj},
     response::Response,
 };
 

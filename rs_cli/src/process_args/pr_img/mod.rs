@@ -1,7 +1,7 @@
 use std::ops::ControlFlow;
 
 use super::utils;
-use crate::{process_img::models::ProcessImageObj, response::Response};
+use crate::{process_img::ProcessImageObj, response::Response};
 mod color_scale;
 mod pixelate;
 mod resize;

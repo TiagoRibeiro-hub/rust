@@ -1,6 +1,6 @@
 use image::Rgba;
 
-use crate::process_img::{ImageRgba, ProcessImageObj, models::ImgDimensions};
+use crate::process_img::{ImageRgba, ProcessImageObj, utils::set_props_for_resize_to_rgba8};
 
 struct Bicubic {
     // 1st row
@@ -82,12 +82,12 @@ impl Bicubic {
 
 #[allow(unused_variables, dead_code, unused_assignments)]
 pub fn resize(image: &ProcessImageObj) -> ImageRgba {
-    let (old_img, dimensions, scale_factor, mut new_img) = image.set_props_for_processing();
+    let (old_img, dimensions, scale_factor, mut new_img) = set_props_for_resize_to_rgba8(image);
 
     for y in 0..dimensions.new_dim.1 {
         for x in 0..dimensions.new_dim.0 {
             // * map the coordinates back to the original image, also need to offset by half a pixel to keep image from shifting down and left half a pixel
-            let (original_y, original_x) = ImgDimensions::map_original_coordinates(y, x, scale_factor);
+            let (original_y, original_x) = dimensions.map_original_coordinates(y, x, scale_factor);
 
             // * calculate the coordinate values for 8 surrounding pixels.
             let (y1, y2, x1, x2) = dimensions.map_surrounding_coordinates(original_y, original_x);

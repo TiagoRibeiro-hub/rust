@@ -12,7 +12,7 @@ pub struct ProcessImageObj {
     pub path: String,
     pub gama: f64,
     pub dimensions: (u32, u32),
-    pub n_size: u32
+    pub k_size: u32
 }
 
 impl From<&str> for ProcessImageObj {
@@ -21,7 +21,7 @@ impl From<&str> for ProcessImageObj {
             path: path.to_string(),
             gama: 1.0,
             dimensions: (0, 0),
-            n_size: 21
+            k_size: 21
         }
     }
 }

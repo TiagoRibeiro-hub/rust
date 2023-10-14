@@ -20,7 +20,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
                         response.message = format!("'{}' must be an odd number", size);
                         return response;
                     }
-                    image.n_size = size;
+                    image.k_size = size;
                 },
                 Err(_) => {
                     response.message = "Invalid value for size".to_string();

@@ -20,7 +20,9 @@
         - (--b) bilinear interpolation
         - (--c) bicubic interpolation
             - (--d) dimension "1000,569"
-
+    - (--f) filter
+        - (--s) kernel size just odd numbers, default 21 ( 21*21 kernel )
+            (--b) box filter
 - (--o) {file_path_to_save}
 - (--n) {file_name}, without extension
 
@@ -33,4 +35,7 @@
     
     - resize => --img "../imgs/chestnut_tailed_starling.jpg" --r --b --d 1000,796 --o "../imgs/"
     - resize => --img "../imgs/chestnut_tailed_starling.jpg" --r --b --d 1200,496 --o "../imgs/" --n teste
+
+    - filter_box => --img "../imgs/chestnut_tailed_starling.jpg" --f --b --o "../imgs/" 
+    - filter_box => --img "../imgs/chestnut_tailed_starling.jpg" --f --b --s 7 --o "../imgs/" --n teste
  

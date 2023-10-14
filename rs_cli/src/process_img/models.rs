@@ -19,3 +19,7 @@ pub enum ResizeForm {
     Bilinear(),
     Bicubic(),
 }
+
+pub enum Filter {
+    Box(),
+}

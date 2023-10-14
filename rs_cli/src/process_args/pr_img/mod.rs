@@ -5,6 +5,7 @@ use crate::{process_img::ProcessImageObj, response::Response};
 mod color_scale;
 mod pixelate;
 mod resize;
+mod filter;
 
 pub fn process_img(args: Vec<String>) -> Response {
     let (mut response, file_path, second_op, third_op) = match args_validation(&args) {
@@ -19,7 +20,10 @@ pub fn process_img(args: Vec<String>) -> Response {
         response = pixelate::process(third_op, &args, image);
     } else if second_op == "--r" {
         response = resize::process(third_op, &args, image);
+    } else if second_op == "--f" {
+        response = filter::process(third_op, &args, image);
     }
+    
     response
 }
 
@@ -35,7 +39,7 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
     }
 
     let second_op: &str = args[3].as_ref();
-    if !["--cs", "--p", "--r"].contains(&second_op) {
+    if !["--cs", "--p", "--r", "--f"].contains(&second_op) {
         response.message = format!("'{}' is not a known parameter for this position", second_op);
         return Err(response);
     }

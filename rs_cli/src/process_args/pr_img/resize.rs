@@ -45,6 +45,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
         }
 
         let mut save_path: String = String::default();
+
         if let ControlFlow::Break(_) = utils::file_path_output_is_empty(
             args[7].as_ref(),
             args[8].as_ref(),

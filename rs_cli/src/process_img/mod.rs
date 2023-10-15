@@ -79,6 +79,9 @@ impl ProcessImageObj {
             Filter::Box() => {
                 filter::r#box::func(self)
             },
+            Filter::Median() => {
+                filter::median::func(self)
+            },
         }
     }
 }

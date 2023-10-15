@@ -1,5 +1,5 @@
 pub mod r#box;
+pub mod median;
 
 // fuzzy filter
-// median filter
 // bilateral filter

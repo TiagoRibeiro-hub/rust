@@ -22,4 +22,5 @@ pub enum ResizeForm {
 
 pub enum Filter {
     Box(),
+    Median(),
 }

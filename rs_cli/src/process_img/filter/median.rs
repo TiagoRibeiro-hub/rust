@@ -10,14 +10,19 @@ use super::{get_kernel_x, get_kernel_y};
 pub fn func(image: &ProcessImageObj) -> ImageRgba {
     let (mut old_img, dimensions, mut new_img) = set_buffer_and_dimensions_to_rgba8(image);
 
-    let median: usize = (image.k_size * image.k_size / 2) as usize;
+    let len = (image.k_size * image.k_size) as usize;
+    let median: usize = len / 2;
     let kernel_half_size = image.k_size / 2;
     for y in 0..dimensions.1 {
         for x in 0..dimensions.0 {
             let mut pix_r: Vec<u8> = Vec::new();
+            pix_r.reserve(len);
             let mut pix_g: Vec<u8> = Vec::new();
+            pix_g.reserve(len);
             let mut pix_b: Vec<u8> = Vec::new();
+            pix_b.reserve(len);
             let mut pix_a: Vec<u8> = Vec::new();
+            pix_a.reserve(len);
 
             let mut count_sub_y = kernel_half_size;
             for kernel_y in 0..image.k_size {
@@ -84,7 +89,7 @@ fn filters() {
     // original 800 x 596
     let image =
         ProcessImageObj::from("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling.jpg");
-    // ! median 21 k_size 4.090607605s
+    // ! median 21 k_size 3.468167633s
     let start = std::time::Instant::now();
     let result = func(&image);
     let _ = result

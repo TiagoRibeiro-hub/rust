@@ -64,10 +64,10 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
         color = ColorsProcesses::Invert();
     }
     else if third_op == "--lc" {
-        color = ColorsProcesses::Low_Contrast();
+        color = ColorsProcesses::LowContrast();
     }
     else if third_op == "--hc" {
-        color = ColorsProcesses::High_Contrast();
+        color = ColorsProcesses::HighContrast();
     }
     let color_img = image.color_scale(color);
 

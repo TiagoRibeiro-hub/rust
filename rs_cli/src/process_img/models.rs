@@ -11,8 +11,8 @@ pub enum ColorsProcesses {
     Darken(),
     Lighten(),
     Invert(),
-    Low_Contrast(),
-    High_Contrast(),
+    LowContrast(),
+    HighContrast(),
 }
 
 pub enum ResizeForm {

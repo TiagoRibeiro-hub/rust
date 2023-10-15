@@ -1,6 +1,6 @@
 use image::{DynamicImage, ImageBuffer, Rgba};
 
-use super::{resize::ImgDimensions, ProcessImageObj};
+use super::{models::ImageRgba, resize::ImgDimensions, ProcessImageObj};
 
 pub fn open(path: &String) -> DynamicImage {
     image::open(path).expect("File not found!")
@@ -33,12 +33,7 @@ pub fn set_buffer_to_rgba8(
 
 pub fn set_props_for_resize_to_rgba8(
     image: &ProcessImageObj,
-) -> (
-    ImageBuffer<Rgba<u8>, Vec<u8>>,
-    ImgDimensions,
-    (f64, f64),
-    ImageBuffer<Rgba<u8>, Vec<u8>>,
-) {
+) -> (ImageRgba, ImgDimensions, (f64, f64), ImageRgba) {
     let img = open(&image.path);
     let old_img = img.to_rgba8();
 
@@ -56,11 +51,7 @@ pub fn set_props_for_resize_to_rgba8(
 
 pub fn set_buffer_and_dimensions_to_rgba8(
     image: &ProcessImageObj,
-) -> (
-    ImageBuffer<Rgba<u8>, Vec<u8>>,
-    (u32, u32),
-    ImageBuffer<Rgba<u8>, Vec<u8>>,
-) {
+) -> (ImageRgba, (u32, u32), ImageRgba) {
     let img = open(&image.path);
     let old_img = img.to_rgba8();
     let dimensions = old_img.dimensions();

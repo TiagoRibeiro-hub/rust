@@ -37,10 +37,10 @@
 
 - exemple: 
     - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o "../imgs/"
-    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o  "../imgs/" -n pixelate
+    - pixelate => --img "../imgs/chestnut_tailed_starling.jpg" --p  --o  "../imgs/" -n teste
 
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/"
-    - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --gs --o "../imgs/" --n blue_scale
+    - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --i --o "../imgs/" --n teste
     - colors => --img "../imgs/chestnut_tailed_starling.jpg" --cs --d --g 25.5 --o "../imgs/" --n teste
 
     - resize => --img "../imgs/chestnut_tailed_starling.jpg" --r --b --d 1000,796 --o "../imgs/"

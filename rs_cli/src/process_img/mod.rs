@@ -50,10 +50,10 @@ impl ProcessImageObj {
             ColorsProcesses::Invert() => {
                 colors::invert(self)
             },
-            ColorsProcesses::Low_Contrast() => {
+            ColorsProcesses::LowContrast() => {
                 colors::low_contrast(self)
             },
-            ColorsProcesses::High_Contrast() => {
+            ColorsProcesses::HighContrast() => {
                 colors::high_contrast(self)
             },
         }

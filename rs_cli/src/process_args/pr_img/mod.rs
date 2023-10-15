@@ -45,7 +45,7 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
     }
 
     let third_op: &str = args[4].as_ref();
-    if !["--o", "--gs", "--bs", "--grs", "--rs", "--b", "--c"].contains(&third_op) {
+    if !["--o", "--gs", "--bs", "--grs", "--rs", "--b", "--c", "--d", "--l", "--i", "--lc", "--hc"].contains(&third_op) {
         response.message = format!("'{}' is not a known parameter for this position", third_op);
         return Err(response);
     }

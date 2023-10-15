@@ -1,7 +1,7 @@
-use self::models::{ColorScale, ImageRgba, ResizeForm, Filter};
+use self::models::{ColorsProcesses, ImageRgba, ResizeForm, Filter};
 
 mod utils;
-mod color_scale;
+mod colors;
 mod pixelate;
 mod resize;
 mod filter;
@@ -10,7 +10,7 @@ pub mod models;
 #[derive(Debug, Clone)]
 pub struct ProcessImageObj {
     pub path: String,
-    pub gama: f64,
+    pub gama: u8,
     pub dimensions: (u32, u32),
     pub k_size: u32
 }
@@ -19,7 +19,7 @@ impl From<&str> for ProcessImageObj {
     fn from(path: &str) -> Self {
         ProcessImageObj {
             path: path.to_string(),
-            gama: 1.0,
+            gama: 0,
             dimensions: (0, 0),
             k_size: 21
         }
@@ -27,21 +27,35 @@ impl From<&str> for ProcessImageObj {
 }
 
 impl ProcessImageObj {
-    pub fn color_scale(&self, color: ColorScale) -> ImageRgba {
+    pub fn color_scale(&self, color: ColorsProcesses) -> ImageRgba {
         match color {
-            ColorScale::Gray() => {
-                color_scale::gray(self)
+            ColorsProcesses::Gray() => {
+                colors::gray(self)
             },
-            ColorScale::Blue() => {
-                color_scale::blue(self)
+            ColorsProcesses::Blue() => {
+                colors::blue(self)
             },
-            ColorScale::Green() => {
-                color_scale::green(self)
+            ColorsProcesses::Green() => {
+                colors::green(self)
             },
-            ColorScale::Red() => {
-                color_scale::red(self)
+            ColorsProcesses::Red() => {
+                colors::red(self)
             },
-                
+            ColorsProcesses::Darken() => {
+                colors::darken(self)
+            },
+            ColorsProcesses::Lighten() => {
+                colors::lighten(self)
+            },
+            ColorsProcesses::Invert() => {
+                colors::invert(self)
+            },
+            ColorsProcesses::Low_Contrast() => {
+                colors::low_contrast(self)
+            },
+            ColorsProcesses::High_Contrast() => {
+                colors::high_contrast(self)
+            },
         }
     }
 

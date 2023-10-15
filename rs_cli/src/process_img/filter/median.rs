@@ -62,10 +62,10 @@ pub fn func(image: &ProcessImageObj) -> ImageRgba {
                 }
             }
 
-            pix_r.sort();
-            pix_g.sort();
-            pix_b.sort();
-            pix_a.sort();
+            pix_r.select_nth_unstable(median);
+            pix_g.select_nth_unstable(median);
+            pix_b.select_nth_unstable(median);
+            pix_a.select_nth_unstable(median);
 
             let r = pix_r[median];
             let g = pix_g[median];
@@ -84,10 +84,10 @@ fn filters() {
     // original 800 x 596
     let image =
         ProcessImageObj::from("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling.jpg");
-    // ! median
+    // ! median 21 k_size 4.090607605s
     let start = std::time::Instant::now();
     let result = func(&image);
     let _ = result
-        .save("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling_filter_median.png");
+        .save("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling_filter_median_teste.png");
     println!("{:?}", start.elapsed());
 }

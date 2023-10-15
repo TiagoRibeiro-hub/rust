@@ -9,7 +9,7 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
     if let ControlFlow::Break(_) = utils::check_min_parameters(args, &mut response, 7) {
         return response;
     }
-    if third_op == "--b" {
+    if third_op == "--b" || third_op == "--m" {
         let fourth_op: &str = args[5].as_ref();
         if fourth_op == "--s" {
             let fourth_op_arg: &str = args[6].as_ref();
@@ -69,9 +69,6 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
             return response;
         }
 
-        
-
-
         if file_name.is_empty() {
             save_path += "/filter.png";
         } else {
@@ -79,14 +76,16 @@ pub fn process(third_op: &str, args: &Vec<String>, mut image: ProcessImageObj) -
             save_path += ".png";
         }
     
-        let filter = Filter::Box();
-
+        let mut filter = Filter::Box();
+        if  third_op == "--m" {
+            filter = Filter::Median();
+        }
 
         let resize_img = image.filter(filter);
         save_img(resize_img, save_path, &mut response);
     }
     else {
-        //* third_op must be --b
+        //* third_op must be --b || --m
         response.message = format!("'{}' is not a known parameter for this position", third_op);
     }
 

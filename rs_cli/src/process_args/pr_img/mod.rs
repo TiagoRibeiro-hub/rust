@@ -3,9 +3,9 @@ use std::ops::ControlFlow;
 use super::utils;
 use crate::{process_img::ProcessImageObj, response::Response};
 mod color_scale;
+mod filter;
 mod pixelate;
 mod resize;
-mod filter;
 
 pub fn process_img(args: Vec<String>) -> Response {
     let (mut response, file_path, second_op, third_op) = match args_validation(&args) {
@@ -23,7 +23,7 @@ pub fn process_img(args: Vec<String>) -> Response {
     } else if second_op == "--f" {
         response = filter::process(third_op, &args, image);
     }
-    
+
     response
 }
 
@@ -45,20 +45,28 @@ fn args_validation(args: &Vec<String>) -> Result<(Response, &str, &str, &str), R
     }
 
     let third_op: &str = args[4].as_ref();
-    if !["--o", "--gs", "--bs", "--grs", "--rs", "--b", "--c", "--d", "--l", "--i", "--lc", "--hc"].contains(&third_op) {
+    if ![
+        "--o", "--gs", "--bs", "--grs", "--rs", "--b", "--c", "--d", "--l", "--i", "--lc", "--hc", "--m"
+    ]
+    .contains(&third_op)
+    {
         response.message = format!("'{}' is not a known parameter for this position", third_op);
         return Err(response);
     }
     Ok((response, file_path, second_op, third_op))
 }
 
-fn save_img(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, save_path: String, response: &mut Response) {
+fn save_img(
+    img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+    save_path: String,
+    response: &mut Response,
+) {
     let saved = img.save(save_path);
     match saved {
         Ok(_) => {
             response.message = "Image processed and saved.".to_string();
             response.succeed = true;
-        },
+        }
         Err(_) => {
             response.message = "Unable to save image.".to_string();
         }

@@ -1,4 +1,3 @@
-
 use image::Rgba;
 
 use crate::process_img::{
@@ -16,13 +15,13 @@ pub fn func(image: &ProcessImageObj) -> ImageRgba {
     for y in 0..dimensions.1 {
         for x in 0..dimensions.0 {
             let mut pix_r: Vec<u8> = Vec::new();
-            pix_r.reserve(len);
             let mut pix_g: Vec<u8> = Vec::new();
-            pix_g.reserve(len);
             let mut pix_b: Vec<u8> = Vec::new();
-            pix_b.reserve(len);
             let mut pix_a: Vec<u8> = Vec::new();
-            pix_a.reserve(len);
+            pix_r.reserve_exact(len);
+            pix_g.reserve_exact(len);
+            pix_b.reserve_exact(len);
+            pix_a.reserve_exact(len);
 
             let mut count_sub_y = kernel_half_size;
             for kernel_y in 0..image.k_size {
@@ -67,6 +66,7 @@ pub fn func(image: &ProcessImageObj) -> ImageRgba {
                 }
             }
 
+            // TODO to slow
             pix_r.select_nth_unstable(median);
             pix_g.select_nth_unstable(median);
             pix_b.select_nth_unstable(median);
@@ -89,10 +89,11 @@ fn filters() {
     // original 800 x 596
     let image =
         ProcessImageObj::from("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling.jpg");
-    // ! median 21 k_size 3.468167633s
+    // ! median 21 k_size 3.265672575s
     let start = std::time::Instant::now();
     let result = func(&image);
-    let _ = result
-        .save("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling_filter_median_teste.png");
+    let _ = result.save(
+        "/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling_filter_median_teste.png",
+    );
     println!("{:?}", start.elapsed());
 }

@@ -1,6 +1,5 @@
 use image::{ImageBuffer, Rgba};
 
-
 pub type ImageRgba = ImageBuffer<Rgba<u8>, Vec<u8>>;
 
 pub enum ColorsProcesses {

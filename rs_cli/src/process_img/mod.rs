@@ -1,10 +1,11 @@
 use self::models::{ColorsProcesses, ImageRgba, ResizeForm, Filter};
 
 mod utils;
-mod colors;
 mod pixelate;
+mod colors;
 mod resize;
 mod filter;
+
 pub mod models;
 
 #[derive(Debug, Clone)]

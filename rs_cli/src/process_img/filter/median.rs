@@ -14,14 +14,10 @@ pub fn func(image: &ProcessImageObj) -> ImageRgba {
     let kernel_half_size = image.k_size / 2;
     for y in 0..dimensions.1 {
         for x in 0..dimensions.0 {
-            let mut pix_r: Vec<u8> = Vec::new();
-            let mut pix_g: Vec<u8> = Vec::new();
-            let mut pix_b: Vec<u8> = Vec::new();
-            let mut pix_a: Vec<u8> = Vec::new();
-            pix_r.reserve_exact(len);
-            pix_g.reserve_exact(len);
-            pix_b.reserve_exact(len);
-            pix_a.reserve_exact(len);
+            let mut pix_r: Vec<u8> = Vec::with_capacity(len);
+            let mut pix_g: Vec<u8> = Vec::with_capacity(len);
+            let mut pix_b: Vec<u8> = Vec::with_capacity(len);
+            let mut pix_a: Vec<u8> = Vec::with_capacity(len);
 
             let mut count_sub_y = kernel_half_size;
             for kernel_y in 0..image.k_size {
@@ -89,7 +85,7 @@ fn filters() {
     // original 800 x 596
     let image =
         ProcessImageObj::from("/home/tiago/rust/projects/cli/imgs/chestnut_tailed_starling.jpg");
-    // ! median 21 k_size 3.265672575s
+    // ! median 21 k_size 3.447176648s
     let start = std::time::Instant::now();
     let result = func(&image);
     let _ = result.save(

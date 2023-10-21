@@ -12,3 +12,13 @@ pub fn slice_string(value_str: &str, char: char, before: bool) -> &str {
     }
     value_str
 }
+
+pub fn get_indexes(str: &str, char: char) -> Vec<usize> {
+    let mut idxs: Vec<usize> = Vec::new(); 
+    for (i, &item) in str.as_bytes().iter().enumerate() {
+        if item == char as u8 {
+            idxs.push(i);
+        }
+    }
+    idxs
+}

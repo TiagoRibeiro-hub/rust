@@ -19,21 +19,13 @@ use rs_cli::advent_of_code::twenty_fifteen::{one::*, two::*};
 // }
 
 // fn wrapper_paper_bench(c: &mut Criterion) {
-    // c.bench_function("wrapper_paper_read_input", |b| b.iter(|| wrapper_paper_read_input()));
+//     c.bench_function("wrapper_paper_read_input", |b| b.iter(|| wrapper_paper_read_input()));
     
-    // c.bench_function("wrapper_paper_read_lines", |b| b.iter(|| wrapper_paper_read_lines()));
+//     c.bench_function("wrapper_paper_read_lines", |b| b.iter(|| wrapper_paper_read_lines()));
     
-    // c.bench_function("wrapper_paper_read_input_get_side_values", |b| b.iter(|| wrapper_paper_read_input_get_side_values()));
+//     c.bench_function("wrapper_paper_read_input_area", |b| b.iter(|| wrapper_paper_read_input_area()));
     
-    // c.bench_function("wrapper_paper_read_lines_get_side_values", |b| b.iter(|| wrapper_paper_read_lines_get_side_values()));
-    
-    // c.bench_function("wrapper_paper_read_input_area", |b| b.iter(|| wrapper_paper_read_input_area()));
-    
-    // c.bench_function("wrapper_paper_read_lines_area", |b| b.iter(|| wrapper_paper_read_lines_area()));
-    
-    // c.bench_function("wrapper_paper_read_input_area_sum", |b| b.iter(|| wrapper_paper_read_input_area_sum()));
-    
-    // c.bench_function("wrapper_paper_read_lines_area_sum", |b| b.iter(|| wrapper_paper_read_lines_area_sum()));
+//     c.bench_function("wrapper_paper_read_lines_area", |b| b.iter(|| wrapper_paper_read_lines_area()));
 // }
 
 fn ribbon_length_bench(c: &mut Criterion) {

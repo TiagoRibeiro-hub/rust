@@ -83,13 +83,15 @@ pub fn stack_manipulation(
     } else if stack.is_empty()
         || operator == Operator::ParenthesesOpen
         || operator == Operator::Expoent
-        || (last_is_add_or_sub(stack) && operator == Operator::Mul || operator == Operator::Div)
+        || (last_is_add_or_sub(stack) && (operator == Op::Mul || operator == Op::Div))
     {
         stack.push(operator)
     } else {
-        while let Some(op) = stack.pop() {
+        let mut stack_clone = stack.clone();
+        while let Some(op) = stack_clone.pop() {
             if is_less_or_equal_than(&operator, &op) {
                 rpn.push(Token::Operator(op));
+                stack.pop();
             } else {
                 break;
             }

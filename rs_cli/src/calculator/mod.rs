@@ -30,22 +30,27 @@ impl fmt::Display for Postfix {
             match token {
                 Token::Operand(n) => {
                     display += &n.to_string();
-                    display += " "
+                    display += " ";
                 },
                 Token::Operator(Operator::Add) => {
                     display += "+";
+                    display += " ";
                 }
                 Token::Operator(Operator::Sub) => {
                     display += "-";
+                    display += " ";
                 }
                 Token::Operator(Operator::Mul) => {
                     display += "*";
+                    display += " ";
                 }
                 Token::Operator(Operator::Div) => {
                     display += "/";
+                    display += " ";
                 }
                 Token::Operator(Operator::Expoent) => {
                     display += "^";
+                    display += " ";
                 }
                 _ =>{},
             }
